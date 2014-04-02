@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Exporter ("import");
-our @EXPORT_OK = qw(send_get send_ssl_get);
+our @EXPORT_OK = ("send_get", "send_ssl_get");
 
 use IO::Socket::INET;
 use IO::Socket::SSL;
@@ -152,17 +152,6 @@ sub unchunk{
 	}
     }
     return $unchunked;
-}
-################################################################################
-sub trim {
-  my @result = @_;
-
-  foreach (@result) {
-    s/^\s+//;
-    s/\s+$//;
-  }
-
-  return wantarray ? @result : $result[0];
 }
 ################################################################################
 
