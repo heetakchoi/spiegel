@@ -3,8 +3,6 @@
 use strict;
 use warnings;
 
-use List::Util;
-
 use Exporter ("import");
 our @EXPORT_OK = ("add", "is_prime");
 
