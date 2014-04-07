@@ -4,9 +4,9 @@ use strict;
 use warnings;
 use lib "lib";
 
-use Eoh::Math;
-use Eoh::Net;
-use Eoh::Str;
+use Eoh::Math ("add", "is_prime");
+use Eoh::Net ("send_get", "send_ssl_get");
+use Eoh::Str ("trim");
 
 sub t_Math;
 sub t_Net;

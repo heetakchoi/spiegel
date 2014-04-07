@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+package Eoh::Str;
 
 use strict;
 use warnings;

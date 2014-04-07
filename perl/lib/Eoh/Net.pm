@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+package Eoh::Net;
 
 use strict;
 use warnings;

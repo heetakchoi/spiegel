@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+package Eoh::Math;
 
 use strict;
 use warnings;
