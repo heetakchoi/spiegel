@@ -3,17 +3,20 @@ package Eoh::Math;
 use strict;
 use warnings;
 
-use Exporter ("import");
-our @EXPORT_OK = ("add", "is_prime");
+sub new{
+    my ($class) = @_;
+    my $self = {};
+    bless($self, $class);
+    return $self;
+}
 
-################################################################################
 sub add{
-    my ($left, $right) = @_;
+    my ($class_or_self, $left, $right) = @_;
     return ($left + $right);
 }
-################################################################################
+
 sub is_prime{
-    my $number = $_[0];
+    my ($class_or_self, $number) = @_;
     my $sqrt_number = sqrt($number);
     my $flag = 1;
     foreach (2..$sqrt_number){
@@ -24,7 +27,6 @@ sub is_prime{
     }
     return $flag;
 }
-################################################################################
 
 return "Eoh::Math";
 

@@ -3,17 +3,21 @@ package Eoh::Net;
 use strict;
 use warnings;
 
-use Exporter ("import");
-our @EXPORT_OK = ("send_get", "send_ssl_get");
-
 use IO::Socket::INET;
 use IO::Socket::SSL;
 use Mozilla::CA;
 
 $| = 1;
-################################################################################
+
+sub new{
+    my ($class) = @_;
+    my $self = {};
+    bless($self, $class);
+    return $self;
+}
+
 sub send_ssl_get{
-    my ($host, $port, $req_uri, $ref_headermap, $brief_flag) = @_;
+    my ($class_or_self, $host, $port, $req_uri, $ref_headermap, $brief_flag) = @_;
     my $response = "";
     my $socket = IO::Socket::SSL->new(
 	PeerHost => "$host:$port",
@@ -70,9 +74,9 @@ sub send_ssl_get{
 	return $response;
     }
 }
-################################################################################
+
 sub send_get{
-    my ($host, $port, $req_uri, $ref_headermap, $brief_flag) = @_;
+    my ($class_or_self, $host, $port, $req_uri, $ref_headermap, $brief_flag) = @_;
     my $response = "";
 
     my $socket = new IO::Socket::INET(
@@ -126,7 +130,7 @@ sub send_get{
 	return $response;
     }
 }
-################################################################################
+
 sub unchunk{
     my ($chunked) = @_;
     my @lines = split(/\r\n/, $chunked);
@@ -153,6 +157,6 @@ sub unchunk{
     }
     return $unchunked;
 }
-################################################################################
+
 
 return "Eoh::Net";
