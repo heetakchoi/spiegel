@@ -5,7 +5,7 @@ use warnings;
 
 use lib "../lib";
 use ThinkStats::FemPreg;
-use Eoh::Math;
+use Eoh::Stat;
 
 my %fp_hash = ();
 open(my $fh_r, "<", "2002FemPreg.dat");
@@ -35,31 +35,28 @@ foreach (keys %fp_hash){
     }
 }
 my @first_prglengths = ();
-my $first_sum = 0;
 foreach (keys %first_hash){
     my $prglength = $first_hash{$_}->get_prglength();
     push(@first_prglengths, $prglength);
-    $first_sum += $prglength;
 }
 my @other_prglengths = ();
-my $other_sum = 0;
 foreach (keys %other_hash){
     my $prglength = $other_hash{$_}->get_prglength();
     push(@other_prglengths, $prglength);
-    $other_sum += $prglength;
 }
-my $math = Eoh::Math->new();
-print "첫째 아이의 수: ", scalar(keys %first_hash), "\n";
-print "그외 아이의 수: ", scalar(keys %other_hash), "\n";
-print "평균 임신 주 수\n";
-print "첫째 평균 ", my $one_mean = $first_sum / scalar(@first_prglengths) , "\n";
-print "첫째 분산 ", my $one_v = $math->get_variance(@first_prglengths) , "\n";
-print "첫째 표준편차 ", my $one_sd = $math->get_standard_deviation(@first_prglengths) , "\n";
-print "나머지 평균 ", my $two_mean = $other_sum / scalar(@other_prglengths) , "\n";
-print "나머지 분산 ", my $two_v = $math->get_variance(@other_prglengths) , "\n";
-print "나머지 표준편차 ", my $two_sd = $math->get_standard_deviation(@other_prglengths) , "\n";
-print "일자로 환산한 평균 차이 ", 7*($one_mean - $two_mean), "\n";
-print "분산 차이 ", ($one_v - $two_v), "\n";
-print "표준편차 차이 ", ($one_sd - $two_sd), "\n";
-
-
+my $first_stat = Eoh::Stat->new(@first_prglengths);
+my $other_stat = Eoh::Stat->new(@other_prglengths);
+printf "첫째 아이의 수: %d\n", scalar(keys %first_hash);
+printf "그외 아이의 수: %d\n", scalar(keys %other_hash);
+printf "평균 임신 주 수\n";
+printf "- 첫째\n";
+printf "-- 평균:   %f\n", my $one_mean = $first_stat->get_mean();
+printf "-- 분산:   %f\n", my $one_v = $first_stat->get_variance();
+printf "-- 표준편차 %f\n", my $one_sd = $first_stat->get_standard_deviation();
+printf "- 나머지\n";
+printf "- 평균:    %f\n", my $two_mean = $other_stat->get_mean();
+printf "- 분산:    %f\n", my $two_v = $other_stat->get_variance();
+printf "- 표준편차: %f\n", my $two_sd = $other_stat->get_standard_deviation();
+printf "일자로 환산한 평균 차이: %f\n", 7*($one_mean - $two_mean);
+printf "분산 차이:             %f\n", ($one_v - $two_v);
+printf "표준편차 차이:         %f\n", ($one_sd - $two_sd);
