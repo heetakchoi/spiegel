@@ -6,6 +6,10 @@ use warnings;
 use lib "../lib";
 use ThinkStats::FemPreg;
 use Eoh::Stat;
+use Eoh::Pmf;
+use Chart::Clicker;
+
+sub draw_bar;
 
 my %fp_hash = ();
 open(my $fh_r, "<", "2002FemPreg.dat");
@@ -46,6 +50,7 @@ foreach (keys %other_hash){
 }
 my $first_stat = Eoh::Stat->new(@first_prglengths);
 my $other_stat = Eoh::Stat->new(@other_prglengths);
+
 printf "첫째 아이의 수: %d\n", scalar(keys %first_hash);
 printf "그외 아이의 수: %d\n", scalar(keys %other_hash);
 printf "평균 임신 주 수\n";
@@ -60,3 +65,28 @@ printf "- 표준편차: %f\n", my $two_sd = $other_stat->get_standard_deviation(
 printf "일자로 환산한 평균 차이: %f\n", 7*($one_mean - $two_mean);
 printf "분산 차이:             %f\n", ($one_v - $two_v);
 printf "표준편차 차이:         %f\n", ($one_sd - $two_sd);
+
+my $first_pmf = Eoh::Pmf->new(@first_prglengths);
+my %first_hist_hash = $first_pmf->get_hist();
+draw_bar("first", \%first_hist_hash);
+
+my $other_pmf = Eoh::Pmf->new(@other_prglengths);
+my %other_hist_hash = $other_pmf->get_hist();
+draw_bar("other", \%other_hist_hash);
+
+my %diff_hash = ();
+foreach my $key (keys %first_hist_hash){
+    my $other_value = $other_hist_hash{$key};
+    $other_value = 0 unless(defined($other_value));
+    $diff_hash{$key} = $first_hist_hash{$key} - $other_value;
+}
+draw_bar("diff", \%diff_hash);
+
+sub draw_bar{
+    my $name = shift;
+    my $ref_hist_hash = shift;
+
+    my $cc = Chart::Clicker->new(width => 800, height => 600, format => "png");
+    $cc->add_data($name, $ref_hist_hash);
+    $cc->write_output("$name.png");        
+}
