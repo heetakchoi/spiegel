@@ -6,7 +6,7 @@ use warnings;
 sub new{
     my ($class) = shift;
     my $self = {};
-    ${$self}{"data"} = \@_;
+    $self->{"data"} = \@_;
     bless($self, $class);
     return $self;
 }
@@ -14,8 +14,7 @@ sub get_mean{
     my $arg = shift;
     my @elements;
     if(ref $arg){
-	my %self_hash = %{$arg};
-	@elements = @{$self_hash{"data"}};
+	@elements = @{$arg->{"data"}};
     }else{
 	my $class = $_;
 	@elements = @_;
@@ -26,8 +25,7 @@ sub get_variance{
     my $arg = shift;
     my @elements;
     if(ref $arg){
-	my %self_hash = %{$arg};
-	@elements = @{$self_hash{"data"}};
+	@elements = @{$arg->{"data"}};
     }else{
 	@elements = @_;
     }
@@ -37,8 +35,7 @@ sub get_standard_deviation{
     my $arg = shift;
     my @elements;
     if(ref $arg){
-	my %self_hash = %{$arg};
-	@elements = @{$self_hash{"data"}};
+	@elements = @{$arg->{"data"}};
     }else{
 	@elements = @_;
     }
