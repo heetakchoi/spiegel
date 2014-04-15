@@ -65,7 +65,8 @@ foreach my $key (keys %blocker_hash){
     my $index = 0;
     foreach my $one (@blocked_array){
 	$index ++;
-	printf "%4d %-30s at %s\n", $index, $one->get("name"), $one->get("wait_at");
+	printf "%4d %-30s (tid %4d) at %s\n", 
+	$index, $one->get("name"), $one->get("tid"), $one->get("wait_at");
     }
 }
 
