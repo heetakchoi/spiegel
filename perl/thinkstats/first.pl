@@ -9,7 +9,7 @@ use Eoh::Stat;
 use Eoh::Pmf;
 use Chart::Clicker;
 
-sub draw_bar;
+sub draw_graph;
 
 my %fp_hash = ();
 open(my $fh_r, "<", "2002FemPreg.dat");
@@ -68,11 +68,11 @@ printf "표준편차 차이:         %f\n", ($one_sd - $two_sd);
 
 my $first_pmf = Eoh::Pmf->new(@first_prglengths);
 my %first_hist_hash = $first_pmf->get_hist();
-draw_bar("first", \%first_hist_hash);
+draw_graph("first_first", \%first_hist_hash);
 
 my $other_pmf = Eoh::Pmf->new(@other_prglengths);
 my %other_hist_hash = $other_pmf->get_hist();
-draw_bar("other", \%other_hist_hash);
+draw_graph("first_other", \%other_hist_hash);
 
 my %diff_hash = ();
 foreach my $key (keys %first_hist_hash){
@@ -80,9 +80,9 @@ foreach my $key (keys %first_hist_hash){
     $other_value = 0 unless(defined($other_value));
     $diff_hash{$key} = $first_hist_hash{$key} - $other_value;
 }
-draw_bar("diff", \%diff_hash);
+draw_graph("first_diff", \%diff_hash);
 
-sub draw_bar{
+sub draw_graph{
     my $name = shift;
     my $ref_hist_hash = shift;
 
