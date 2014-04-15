@@ -14,6 +14,7 @@ open(my $file_r, "<", $trace_file);
 my $line_number = 0;
 while(my $line = <$file_r>){
     $line_number ++;
+    chomp($line);
     if($line=~m/^"(\S+)" prio=\d+ tid=(\d+) (\S+)$/){
 	if(defined($tinfo)){
 	    $threads{$line_number} = $tinfo;
@@ -32,6 +33,10 @@ while(my $line = <$file_r>){
 	$tinfo->set("wait_at", $2);
 	$tinfo->set("wait_by_id", $3);
 	$tinfo->set("wait_by_name", $4);
+    }elsif($line=~m/^  at /){
+	unless(defined($tinfo->get("first_at"))){
+	    $tinfo->set("first_at", $line);
+	}
     }
 }
 $threads{$line_number} = $tinfo;
@@ -62,11 +67,12 @@ foreach my $key (keys %blocker_hash){
     my @blocked_array = @{$blocker_hash{$key}};
     my $blocker_tinfo = $tid_hash{$key};
     printf "%s blocks %d thread.\n", $blocker_tinfo->get("name"), scalar(@blocked_array);
+    printf "  %s\n", $blocker_tinfo->get("first_at");
     my $index = 0;
     foreach my $one (@blocked_array){
 	$index ++;
-	printf "%4d %-30s (tid %4d) at %s\n", 
-	$index, $one->get("name"), $one->get("tid"), $one->get("wait_at");
+	printf "%4d %-30s (tid %3d) %s\n", 
+	$index, $one->get("name"), $one->get("tid"), $one->get("first_at");
     }
 }
 
