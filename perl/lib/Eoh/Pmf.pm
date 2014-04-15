@@ -11,6 +11,20 @@ sub new{
     bless($self, $class);
     return $self;
 }
+sub set_from_hash{
+    my $self = shift;
+    my $arg = shift;
+    my %hash = %{$arg};
+    my @elements = ();
+    foreach my $key (keys %hash){
+	my $count = $hash{$key};
+	foreach ( 1..$count ){
+	    push(@elements, $key);
+	}
+    }
+    internal_init_from_data($self, @elements);
+    return $self;
+}
 sub get_freq{
     my $self = shift;
     my $arg = shift;
@@ -56,6 +70,19 @@ sub get_mode{
 	}
     }
     return $key_for_max_value;
+}
+sub get_mean{
+    my $self = shift;
+    my %hist_hash = %{$self->{"hist"}};
+    my $total = 0;
+    foreach my $count (values %hist_hash){
+	$total += $count;
+    }
+    my $mean = 0;
+    foreach my $key (keys %hist_hash){
+	$mean += (($key*$hist_hash{$key})/$total);
+    }
+    return $mean;
 }
 
 sub internal_init_from_data{

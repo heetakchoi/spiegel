@@ -9,7 +9,16 @@ use Chart::Clicker;
 use Chart::Clicker::Context;
 use Chart::Clicker::Renderer::Bar;
 
-my $pmf = Eoh::Pmf->new( (1, 2, 2, 3, 4, 5, 5, 5) );
+my %data_hash = (
+    7=>8,   12=>8, 17=>14, 22=>4, 27=>6, 
+    32=>12, 37=>8, 42=>3,  47=>2
+    );
+
+my $pmf = Eoh::Pmf->new();
+$pmf->set_from_hash(\%data_hash);
+print "mean: ", $pmf->get_mean(), "\n";
+
+# my $pmf = Eoh::Pmf->new( (1, 2, 2, 3, 4, 5, 5, 5) );
 # foreach ( (1,2,3,4,5, 6) ){
 #     print $_, " : " , $pmf->get_freq($_) , "\n";
 # }
