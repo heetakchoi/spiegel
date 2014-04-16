@@ -12,12 +12,15 @@ my %threads = ();
 my $tinfo;
 open(my $file_r, "<", $trace_file);
 my $line_number = 0;
+my $paragraph = "";
 while(my $line = <$file_r>){
     $line_number ++;
     chomp($line);
     if($line=~m/^"(\S+)" prio=\d+ tid=(\d+) (\S+)$/){
 	if(defined($tinfo)){
+	    $tinfo->set("paragraph", $paragraph);
 	    $threads{$line_number} = $tinfo;
+	    $paragraph = "";
 	}
 	$tinfo = Eoh::Tinfo->new();
 	$tinfo->set("line_number", $line_number);
@@ -38,8 +41,11 @@ while(my $line = <$file_r>){
 	    $tinfo->set("first_at", $line);
 	}
     }
+    $paragraph .= ($line."\n");
 }
+$tinfo->set("paragraph", $paragraph);
 $threads{$line_number} = $tinfo;
+$paragraph = "";
 close($file_r);
 
 # foreach my $key (sort {$a<=>$b} keys %threads){
@@ -63,16 +69,22 @@ foreach my $key (keys %threads){
 	}
     }
 }
+my $blocker_index = 0;
 foreach my $key (keys %blocker_hash){
+    $blocker_index ++;
     my @blocked_array = @{$blocker_hash{$key}};
     my $blocker_tinfo = $tid_hash{$key};
-    printf "%s blocks %d thread.\n", $blocker_tinfo->get("name"), scalar(@blocked_array);
-    printf "  %s\n", $blocker_tinfo->get("first_at");
+    printf "%2d %s blocks %d thread. %7s (tid %3d, line %4d) %s\n", 
+    $blocker_index,
+    $blocker_tinfo->get("name"), scalar(@blocked_array), "",
+    $blocker_tinfo->get("tid"), $blocker_tinfo->get("line_number"), 
+    $blocker_tinfo->get("first_at");
+    print $blocker_tinfo->get("paragraph");
     my $index = 0;
-    foreach my $one (@blocked_array){
+    foreach my $one (sort {$a->get("name") cmp $b->get("name")} @blocked_array){
 	$index ++;
-	printf "%4d %-30s (tid %3d) %s\n", 
-	$index, $one->get("name"), $one->get("tid"), $one->get("first_at");
+	printf " - %3d %-30s (tid %3d, line %4d) %s\n", 
+	$index, $one->get("name"), $one->get("tid"), $one->get("line_number"), $one->get("first_at");
     }
 }
 
