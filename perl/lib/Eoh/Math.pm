@@ -9,10 +9,7 @@ sub new{
     bless($self, $class);
     return $self;
 }
-sub add{
-    my ($class_or_self, $left, $right) = @_;
-    return ($left + $right);
-}
+
 sub is_prime{
     my ($class_or_self, $number) = @_;
     my $sqrt_number = sqrt($number);
@@ -24,6 +21,25 @@ sub is_prime{
 	}
     }
     return $flag;
+}
+
+sub combination{
+	my ($class_or_self, $left, $right) = @_;
+	return internal_factorial($left) / ( internal_factorial($right) * internal_factorial($left-$right));
+}
+
+sub factorial{
+	my ($class_or_self, $number) = @_;
+	return internal_factorial($number);
+}
+
+sub internal_factorial{
+	my $number = $_[0];
+	my $result = 1;
+	foreach my $idx ( (1..$number) ){
+		$result *= $idx;
+	}
+	return $result;	
 }
 
 return "Eoh::Math";
