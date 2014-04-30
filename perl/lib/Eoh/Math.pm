@@ -25,6 +25,21 @@ sub is_prime{
     }
     return $flag;
 }
+sub get_divisor_size{
+    my ($class_or_self, $number) = @_;
+    my $count = 0;
+    my $sqrt_number = sqrt($number);
+    foreach (1..$sqrt_number){
+	if($number % $_ == 0){
+	    $count += 2;
+	}
+    }
+    if($number % $sqrt_number == 0){
+	$count = $count -1;
+    }
+    return $count;
+}
+
 
 return "Eoh::Math";
 
