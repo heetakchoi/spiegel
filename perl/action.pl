@@ -8,6 +8,7 @@ use Eoh::Math;
 use Eoh::Net;
 use Eoh::Stat;
 use Eoh::Str("trim");
+use Eoh::Prime;
 
 sub t_Math;
 sub t_Net;
@@ -17,7 +18,25 @@ sub t_Stat;
 # t_Net;
 # t_Str;
 # t_Math;
-t_Stat;
+# t_Stat;
+
+my $prime = Eoh::Prime->new("../data/primes.txt");
+$prime->construct_primes(123456);
+# my $candidate = shift;
+# $candidate = 7 unless(defined($candidate));
+# my ($flag, $msg) = $prime->is_prime($candidate);
+# print "$candidate is ";
+# if($flag){
+#     print "prime. msg:", $msg, "\n";
+# }else{
+#     print "not prime. msg:", $msg, "\n";
+# }
+# print "--";
+# if($prime->is_prime($candidate)){
+#     print "PRIME\n";
+# }else{
+#     print "NOT PRIME\n";
+# }
 
 sub t_Stat{
     my $stat = Eoh::Stat->new((1..10));

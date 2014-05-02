@@ -3,6 +3,8 @@ package Eoh::Math;
 use strict;
 use warnings;
 
+use bignum;
+
 sub new{
     my ($class) = @_;
     my $self = {};
@@ -26,17 +28,17 @@ sub get_divisor_size{
     my ($class_or_self, $number) = @_;
     my $count = 0;
     my $sqrt_number = sqrt($number);
-    foreach (1..$sqrt_number){
-	if($number % $_ == 0){
+    foreach my $divisor (1..$sqrt_number){
+	if($number % $divisor == 0){
+	    my $quotient = $number / $divisor;
 	    $count += 2;
+	    if($divisor == $quotient){
+		$count -= 1;
+	    }
 	}
-    }
-    if($number % $sqrt_number == 0){
-	$count = $count -1;
     }
     return $count;
 }
-
 
 sub combination{
 	my ($class_or_self, $left, $right) = @_;
