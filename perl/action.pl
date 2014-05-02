@@ -19,24 +19,31 @@ sub t_Stat;
 # t_Str;
 # t_Math;
 # t_Stat;
+# t_Prime;
 
-my $prime = Eoh::Prime->new("../data/primes.txt");
-$prime->construct_primes(123456);
-# my $candidate = shift;
-# $candidate = 7 unless(defined($candidate));
-# my ($flag, $msg) = $prime->is_prime($candidate);
-# print "$candidate is ";
-# if($flag){
-#     print "prime. msg:", $msg, "\n";
-# }else{
-#     print "not prime. msg:", $msg, "\n";
-# }
-# print "--";
-# if($prime->is_prime($candidate)){
-#     print "PRIME\n";
-# }else{
-#     print "NOT PRIME\n";
-# }
+t_Prime(shift);
+
+sub t_Prime{
+
+    my $prime = Eoh::Prime->new("../data/primes.txt");
+    # $prime->construct_primes(123456);
+
+    my $candidate = shift;
+    $candidate = 7 unless(defined($candidate));
+    my ($flag, $msg) = $prime->is_prime($candidate);
+    print "$candidate is ";
+    if($flag){
+	print $msg, "\n";
+    }else{
+	print $msg, "\n";
+    }
+    print "--";
+    if($prime->is_prime($candidate)){
+	print "PRIME\n";
+    }else{
+	print "NOT PRIME\n";
+    }
+}
 
 sub t_Stat{
     my $stat = Eoh::Stat->new((1..10));
