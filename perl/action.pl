@@ -30,18 +30,11 @@ sub t_Prime{
 
     my $candidate = shift;
     $candidate = 7 unless(defined($candidate));
-    my ($flag, $msg) = $prime->is_prime($candidate);
-    print "$candidate is ";
-    if($flag){
-	print $msg, "\n";
-    }else{
-	print $msg, "\n";
-    }
-    print "--";
+	print $candidate." is ";
     if($prime->is_prime($candidate)){
-	print "PRIME\n";
+		print "PRIME.\n";
     }else{
-	print "NOT PRIME\n";
+		print "NOT PRIME.\n";
     }
 }
 
