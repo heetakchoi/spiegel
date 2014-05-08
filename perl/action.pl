@@ -39,14 +39,14 @@ sub t_Prime{
     $candidate = 7 unless(defined($candidate));
     print $candidate." is ";
     if($prime->is_prime($candidate)){
-	print "PRIME.\n";
+		print "PRIME.\n";
     }else{
-	print "NOT PRIME.\n";
+		print "NOT PRIME.\n";
     }
 # my $number = 3;
 # print $number. ": ". $prime->get_least_prime($number) ."\n";
     foreach my $number ( (2..22) ){
-	print $number. ": ". $prime->get_least_prime($number) ."\n";
+		print $number. ": ". $prime->get_least_prime($number) ."\n";
     }
 }
 
