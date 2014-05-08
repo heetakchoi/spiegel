@@ -19,22 +19,34 @@ sub t_Stat;
 # t_Str;
 # t_Math;
 # t_Stat;
-# t_Prime;
+# t_Prime(shift);
 
-t_Prime(shift);
+my $prime = Eoh::Prime->new("../data/primes.txt");
+my $candidate = shift;
+$candidate = 360 unless(defined($candidate));
+my %bphash = ();
+$prime->factorization($candidate, \%bphash);
+print "$candidate is composed by\n";
+foreach my $key ( keys %bphash ){
+    print "  $key ^ $bphash{$key}\n";
+}
 
 sub t_Prime{
-
     my $prime = Eoh::Prime->new("../data/primes.txt");
     # $prime->construct_primes(123456);
 
     my $candidate = shift;
     $candidate = 7 unless(defined($candidate));
-	print $candidate." is ";
+    print $candidate." is ";
     if($prime->is_prime($candidate)){
-		print "PRIME.\n";
+	print "PRIME.\n";
     }else{
-		print "NOT PRIME.\n";
+	print "NOT PRIME.\n";
+    }
+# my $number = 3;
+# print $number. ": ". $prime->get_least_prime($number) ."\n";
+    foreach my $number ( (2..22) ){
+	print $number. ": ". $prime->get_least_prime($number) ."\n";
     }
 }
 
