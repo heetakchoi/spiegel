@@ -49,6 +49,7 @@ sub new{
 
 sub get_least_prime{
     my ($self, $number) = @_;
+	return if($number < 2);
     construct_primes($self, $number);
     if($self->{"max_value"} <= $number){
 		return $self->{"max_value"};
@@ -103,7 +104,7 @@ sub factorization{
 			if($prime > $least_prime){
 				last;
 			}
-			while($quotient % $prime == 0){
+			while($quotient > 1 and $quotient % $prime == 0){
 				unless(defined($bphash_ref->{$prime})){
 					$bphash_ref->{$prime} = 1;
 				}else{
@@ -112,6 +113,7 @@ sub factorization{
 				$quotient /= $prime;
 			}
 			$least_prime = get_least_prime($self, int(sqrt($quotient)));
+			last unless(defined($least_prime));
 		}
     }
     return;
