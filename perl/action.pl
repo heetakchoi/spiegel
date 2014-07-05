@@ -9,26 +9,35 @@ use Eoh::Net;
 use Eoh::Stat;
 use Eoh::Str("trim");
 use Eoh::Prime;
+use Eoh::Time("get_ymd");
 
 sub t_Math;
 sub t_Net;
 sub t_Str;
 sub t_Stat;
+sub t_Time;
 
 # t_Net;
 # t_Str;
 # t_Math;
 # t_Stat;
 # t_Prime(shift);
+# t_factorization;
 
-my $prime = Eoh::Prime->new("../data/primes.txt");
-my $candidate = shift;
-$candidate = 360 unless(defined($candidate));
-my %bphash = ();
-$prime->factorization($candidate, \%bphash);
-print "$candidate is composed by\n";
-foreach my $key ( keys %bphash ){
-    print "  $key ^ $bphash{$key}\n";
+foreach ( (-3..-1) ){
+	print get_ymd($_), "\n";
+}
+
+sub t_factorization{
+	my $prime = Eoh::Prime->new("../data/primes.txt");
+	my $candidate = shift;
+	$candidate = 360 unless(defined($candidate));
+	my %bphash = ();
+	$prime->factorization($candidate, \%bphash);
+	print "$candidate is composed by\n";
+	foreach my $key ( keys %bphash ){
+		print "  $key ^ $bphash{$key}\n";
+	}
 }
 
 sub t_Prime{
