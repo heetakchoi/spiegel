@@ -17,16 +17,16 @@ sub t_Str;
 sub t_Stat;
 sub t_Time;
 
-# t_Net;
+t_Net;
 # t_Str;
 # t_Math;
 # t_Stat;
 # t_Prime(shift);
 # t_factorization;
 
-foreach ( (-3..-1) ){
-	print get_ymd($_), "\n";
-}
+# foreach ( (-3..-1) ){
+# 	print get_ymd($_), "\n";
+# }
 
 sub t_factorization{
 	my $prime = Eoh::Prime->new("../data/primes.txt");
@@ -79,8 +79,13 @@ sub t_Math{
 sub t_Net{
     my $net = Eoh::Net->new();
     my %header_hash = ();
-    print $net->send_get("www.naver.com", 80, "/", \%header_hash, 1);
-    print $net->send_ssl_get("play.google.com", 443, "/store/apps/collection/topselling_free", \%header_hash, 0);
+    # print $net->send_get("www.naver.com", 80, "/", \%header_hash, 1);
+    # print $net->send_ssl_get("play.google.com", 443, "/store/apps/collection/topselling_free", \%header_hash, 0);
+	my %param_hash = (
+		"한글"=>"한국",
+		"우리"=>"나라",
+		);
+	print $net->send_post("endofhope.com", 80, "/info.cgi", \%param_hash, \%header_hash, 1);
 }
 sub t_Str{
     my $content = "   blk   ";
