@@ -40,7 +40,7 @@ sub proc_download{
 }
 
 sub download_image{
-	my ($target_dir, $image_url, $delay) = @_;
+	my ($target_dir, $image_url, $delay, $name) = @_;
 
 	my $url = substr($image_url, 7);
 	my $host = substr($url, 0, index($url, "/"));
@@ -48,6 +48,10 @@ sub download_image{
 	my $book_no = substr($target_dir, rindex($target_dir, "/")+1);
 	my $image = substr($url, rindex($url, "/")+1);
 	my $image_no = substr($image, 0, index($image, "."));
+	if(defined($name)){
+		my $ext = substr($image, index($image, "."));
+		$image = $name . $ext;
+	}
 	my $target = $target_dir . "/" . $image;
 
 	if($delay){
