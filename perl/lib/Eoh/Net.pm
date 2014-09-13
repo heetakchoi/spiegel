@@ -171,6 +171,9 @@ sub send_post{
     unless(defined($headermap{"Connection"})){
 		$headermap{"Connection"} = "close";
     }
+	unless(defined($headermap{"Content-Type"})){
+		$headermap{"Content-Type"} = "application/x-www-form-urlencoded";
+	}
 
 	my $body_str = "";
 	my %parammap = %{$ref_parammap};
