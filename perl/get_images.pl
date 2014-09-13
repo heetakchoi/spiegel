@@ -78,7 +78,7 @@ sub pick_image_links{
 	my $host = substr($container_url, 0, index($container_url, "/"));
 	my $request_uri = substr($container_url, index($container_url, "/"));
 	my $content = $net->send_get($host, 80, $request_uri, \%header_hash, 1);
-	while($content =~ m/src="([^"]+)"/g){
+	while($content =~ m/\ssrc="([^"]+)"/g){
 		push(@image_links, $1);
 	}
 	return @image_links;
