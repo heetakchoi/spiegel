@@ -10,6 +10,7 @@ use Eoh::Stat;
 use Eoh::Str("trim");
 use Eoh::Prime;
 use Eoh::Time("get_ymd");
+use Decision::Monte("select");
 
 sub t_Math;
 sub t_Net;
@@ -17,6 +18,7 @@ sub t_Str;
 sub t_Stat;
 sub t_Time;
 sub t_Download;
+sub t_Select;
 
 # t_Net;
 # t_Str;
@@ -28,6 +30,8 @@ sub t_Download;
 # foreach ( (-3..-1) ){
 # 	print get_ymd($_), "\n";
 # }
+
+    t_Select;
 
 sub t_factorization{
 	my $prime = Eoh::Prime->new("../data/primes.txt");
@@ -92,4 +96,37 @@ sub t_Str{
     my $content = "   blk   ";
     print "from: >" . $content . "<\n";
     print "to  : >" . trim($content) . "<\n";
+}
+sub t_Select{
+    my @base_array = (1..45);
+    my %win_hash = ();
+    foreach ( (1..6) ){
+	my $part = select(\@base_array, 1);
+	$win_hash{$part} = 1;
+    }
+    print "Current win numbers is ";
+    foreach (sort {$a<=>$b} keys %win_hash){
+	print $_, " ";
+    }
+    print "\n";
+    foreach my $try_number ( 1..10000000) {
+	print "[", $try_number, "]";
+	@base_array = (1..45);
+	my $fail_flag = 0;
+	foreach ( (1..6) ){
+	    my $current = select(\@base_array, 1);
+	    if($win_hash{$current}){
+
+	    }else{
+		print "[F][", $_, "]\n";
+		$fail_flag = 1;
+		last;
+	    }
+	}
+	unless($fail_flag){
+	    print "Congraturation!\n";
+	    print "You win at ", $try_number, "th.\n";
+	    last;
+	}
+    }
 }
