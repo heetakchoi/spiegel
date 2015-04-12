@@ -1,0 +1,6 @@
+db-host DBI:mysql:database=DATABASE;host=HOST;portPORTNUMBER
+db-user DBUSER
+db-password DBPASSWORD
+access-id USERID
+access-password USERPASSWORD
+auth-token AUTHTOKEN
