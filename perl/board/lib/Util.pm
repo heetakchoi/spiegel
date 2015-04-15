@@ -6,61 +6,50 @@ use warnings;
 sub new{
     my ($class) = @_;
     my $self = {};
+    open(my $file, "<", "Util.info");
+    while(my $line=<$file>){
+	if($line=~m/^(\S+)\s+(\S+)/){
+	    $self->{$1} = $2;
+	}
+    }
     bless($self, $class);
     return $self;
 }
+sub get{
+    my ($self, $key) = @_;
+    return $self->{$key};
+}
 sub html_output{
-    my ($class_or_self, $data) = @_;
+    my ($class, $data) = @_;
     $data =~ s#\n#<br />#ig;
     return $data;
 }
 sub is_valid{
-    my ($class_or_self, $cgi) = @_;
-    my %hash = ();
-    open(my $file, "<", "Util.info");
-    while(my $line=<$file>){
-	if($line=~m/^(\S+)\s+(\S+)/){
-	    $hash{$1} = $2;
-	}
-    }
-    close($file);
+    my ($self, $cgi) = @_;
     my $auth_token = $cgi->cookie("auth_token");
-    if($auth_token eq $hash{"auth-token"}){
-	return 1;
+    if(defined($auth_token)){
+	if($auth_token eq $self->{"auth-token"}){
+	    return 1;
+	}else{
+	    return 0;
+	}
     }else{
 	return 0;
     }
 }
 sub invalidate{
-    my ($class_or_self, $cgi) = @_;
-    print $cgi->header(-charset=>"euc-kr");
-    print "<script> alert('invalid access'); location.href = '/board'; </script>";
+    my ($self, $cgi) = @_;
+    print $cgi->header(-charset=>$self->{"charset"});
+    printf "<script> alert('invalid access'); location.href = \"%s\"; </script>", $self->{"loc-home"};
     return;
 }
 sub connect_info{
-    my ($class_or_self) = @_;
-    my %hash = ();
-    open(my $file, "<", "/home100/endofhope/info/Util.info");
-    while(my $line=<$file>){
-	if($line=~m/^(\S+)\s+(\S+)/){
-	    $hash{$1} = $2;
-	}
-    }
-    close($file);
-    return ($hash{"db-host"}, $hash{"db-user"}, $hash{"db-password"});
+    my ($self) = @_;
+    return ($self->{"db-host"}, $self->{"db-user"}, $self->{"db-password"});
 }
 sub access_info{
-    my ($class_or_self) = @_;
-    my %hash = ();
-    open(my $file, "<", "Util.info");
-    while(my $line=<$file>){
-	if($line=~m/^(\S+)\s+(\S+)/){
-	    $hash{$1} = $2;
-	}
-    }
-    close($file);
-    return ($hash{"access-id"}, $hash{"access-password"}, $hash{"auth-token"});
+    my ($self) = @_;
+    return ($self->{"access-id"}, $self->{"access-password"}, $self->{"auth-token"});
 }
 
 return "Util.pm";
-

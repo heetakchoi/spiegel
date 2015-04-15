@@ -10,8 +10,9 @@ use Article;
 use Util;
 
 my $cgi = CGI->new;
-unless(Util->is_valid($cgi)){
-    Util->invalidate($cgi);
+my $util = Util->new;
+unless($util->is_valid($cgi)){
+    $util->invalidate($cgi);
     return;
 }
 
@@ -21,7 +22,7 @@ my $title = $cgi->param("title");
 my $content = $cgi->param("content");
 my $category_srno = $cgi->param("category_srno");
 ################################################################################
-my $dbh = DBI->connect(Util->connect_info);
+my $dbh = DBI->connect($util->connect_info);
 my $sql = "INSERT INTO article (created, ymd, status, title, content, category_srno) VALUES (now(), ?, ?, ?, ?, ?)";
 my $sth = $dbh->prepare($sql);
 $sth->execute($ymd, $status, $title, $content, $category_srno);
@@ -30,7 +31,7 @@ $dbh->disconnect();
 ################################################################################
 
 print $cgi->header(
-    -charset=>"euc-kr"
+    -charset=>$util->get("charset")
     );
 print "<script> location.href = 'list_article.cgi'; </script>\n";
 

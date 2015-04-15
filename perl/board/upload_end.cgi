@@ -8,12 +8,13 @@ use lib "lib";
 use Util;
 
 my $cgi = CGI->new;
-unless(Util->is_valid($cgi)){
-    Util->invalidate($cgi);
+my $util = Util->new;
+unless($util->is_valid($cgi)){
+    $util->invalidate($cgi);
     return;
 }
 
-my $root_dir = "/home100/endofhope/www/data";
+my $root_dir = $util->get("loc-upload");
 my $buffer;
 
 my $back_url = $cgi->param("back_url");
@@ -22,12 +23,12 @@ my $upload_fh = $cgi->upload("upload");
 my $file_location = $root_dir. "/" . $filename;
 
 print $cgi->header(
-    -charset=>"euc-kr"
+    -charset=>$util->get("charset")
     );
 print $cgi->start_html(
-    -title=>"tmpl",
-    -style=>"style.css",
-    -script=>{type =>"text/javascript", src=>"script.js"},
+    -title=>"upload_end",
+    -style=>$util->get("loc-css"),
+    -script=>{type =>"text/javascript", src=>$util->get("loc-js")},
     -meta=>{"viewport"=>"width=device-width, initial-scale=1.0"},
     );
 require "before.pl";

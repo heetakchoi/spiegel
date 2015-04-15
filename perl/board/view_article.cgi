@@ -12,12 +12,13 @@ use Category;
 use Util;
 
 my $cgi = CGI->new;
+my $util = Util->new;
 my $valid_flag = 0;
-$valid_flag = 1 if(Util->is_valid($cgi));
+$valid_flag = 1 if($util->is_valid($cgi));
 my $srno = $cgi->param("srno");
 my $page_no = $cgi->param("page_no");
 ################################################################################
-my $dbh = DBI->connect(Util->connect_info);
+my $dbh = DBI->connect($util->connect_info);
 
 my %category_hash = ();
 my $sql = "SELECT * FROM category";
@@ -54,12 +55,12 @@ my $category_name = $category_hash{$article->category_srno}->category_name;
 ################################################################################
 
 print $cgi->header(
-    -charset=>"euc-kr"
+    -charset=>$util->get("charset")
     );
 print $cgi->start_html(
     -title=>"View Article",
-    -style=>"style.css",
-    -script=>{type =>"text/javascript", src=>"script.js"},
+    -style=>$util->get("loc-css"),
+    -script=>{type =>"text/javascript", src=>$util->get("loc-js")},
     -meta=>{"viewport"=>"width=device-width, initial-scale=1.0"},
     );
 require "before.pl";
@@ -76,15 +77,15 @@ printf "  <div style=\"margin-left: 25px;margin-top: 20px;margin-bottom: 25px;\"
 
 print  "  <div class=\"right\">\n";
 if(defined($upper_srno)){
-    printf "<a href=\"view_article.cgi?srno=%d&page_no=%d\">À§·Î</a>\n", $upper_srno, $page_no;
+    printf "<a href=\"view_article.cgi?srno=%d&page_no=%d\">ìœ„ë¡œ</a>\n", $upper_srno, $page_no;
 }else{
-    print "ÃÖ½Å±ÛÀÔ´Ï´Ù.\n";
+    print "ìµœì‹ ê¸€ìž…ë‹ˆë‹¤.\n";
 }
 print " &nbsp; &nbsp; &nbsp; &nbsp; ";
 if(defined($lower_srno)){
-    printf "<a href=\"view_article.cgi?srno=%d&page_no=%d\">¾Æ·¡·Î</a>\n", $lower_srno, $page_no;
+    printf "<a href=\"view_article.cgi?srno=%d&page_no=%d\">ì•„ëž˜ë¡œ</a>\n", $lower_srno, $page_no;
 }else{
-    print "Ã¹±ÛÀÔ´Ï´Ù.\n";
+    print "ì²«ê¸€ìž…ë‹ˆë‹¤.\n";
 }
 print  "  </div>\n"; # div.right
 print  "  <div class=\"left\">\n";

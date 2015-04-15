@@ -8,11 +8,13 @@ use lib "lib";
 use Util;
 
 my $cgi = CGI->new;
+my $util = Util->new;
+
 my $id = $cgi->param("id");
 my $pw = $cgi->param("pw");
 
 my $success_flag = 0;
-my @access_info = Util->access_info;
+my @access_info = $util->access_info;
 if($id eq $access_info[0]){
     if($pw eq $access_info[1]){
 	$success_flag = 1;
@@ -30,12 +32,13 @@ if($success_flag){
 }
 print $cgi->header(
     -cookie=>$cookie,
-    -charset=>"euc-kr");
+    -charset=>$util->get("charset")
+    );
 
 print $cgi->start_html(
     -title=>"Login end",
-    -style=>"style.css",
-    -script=>{type =>"text/javascript", src=>"script.js"},
+    -style=>$util->get("loc-css"),
+    -script=>{type =>"text/javascript", src=>$util->get("loc-js")},
     -meta=>{"viewport"=>"width=device-width, initial-scale=1.0"},
     );
 require "before.pl";

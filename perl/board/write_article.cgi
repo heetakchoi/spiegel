@@ -10,9 +10,15 @@ use lib "lib";
 use Category;
 use Util;
 
+my $cgi = CGI->new;
+my $util = Util->new;
+unless($util->is_valid($cgi)){
+    $util->invalidate($cgi);
+    return;
+}
 ################################################################################
 my @categories = ();
-my $dbh = DBI->connect(Util->connect_info);
+my $dbh = DBI->connect($util->connect_info);
 my $sql = "SELECT * FROM category ORDER BY srno DESC";
 my $sth = $dbh->prepare($sql);
 $sth->execute();
@@ -23,19 +29,14 @@ while(my @rows = $sth->fetchrow_array()){
 $sth->finish();
 $dbh->disconnect();
 ################################################################################
-my $cgi = CGI->new;
-unless(Util->is_valid($cgi)){
-    Util->invalidate($cgi);
-    return;
-}
 
 print $cgi->header(
-    -charset=>"euc-kr"
+    -charset=>$util->get("charset")
     );
 print $cgi->start_html(
     -title=>"Write Article",
-    -style=>"style.css",
-    -script=>{type =>"text/javascript", src=>"script.js"},
+    -style=>$util->get("loc-css"),
+    -script=>{type =>"text/javascript", src=>$util->get("loc-js")},
     -meta=>{"viewport"=>"width=device-width, initial-scale=1.0"},
     );
 require "before.pl";

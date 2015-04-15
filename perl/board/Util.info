@@ -1,6 +1,11 @@
-db-host DBI:mysql:database=DATABASE;host=HOST;portPORTNUMBER
+db-host DBI:mysql:database=DATABASENAME;host=DBHOST;portDBPORT
 db-user DBUSER
 db-password DBPASSWORD
-access-id USERID
-access-password USERPASSWORD
+access-id SUPERID
+access-password SUPERPASSWORD
 auth-token AUTHTOKEN
+loc-home /board
+loc-css /board/style.css
+loc-js /board/script.js
+charset utf-8
+loc-upload /tmp

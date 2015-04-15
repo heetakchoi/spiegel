@@ -10,14 +10,15 @@ use Article;
 use Util;
 
 my $cgi = CGI->new;
-unless(Util->is_valid($cgi)){
-    Util->invalidate($cgi);
+my $util = Util->new;
+unless($util->is_valid($cgi)){
+    $util->invalidate($cgi);
     return;
 }
 
 my $srno = $cgi->param("srno");
 ################################################################################
-my $dbh = DBI->connect(Util->connect_info);
+my $dbh = DBI->connect($util->connect_info);
 my $sql = "DELETE FROM article WHERE srno = ?";
 my $sth = $dbh->prepare($sql);
 $sth->execute($srno);
@@ -26,7 +27,9 @@ $dbh->disconnect();
 ################################################################################
 
 print $cgi->header(
-    -charset=>"euc-kr"
+    -charset=>$util->get("charset")
     );
 print "<script> location.href = 'list_article.cgi'; </script>\n";
+
+
 

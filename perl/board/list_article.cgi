@@ -13,14 +13,15 @@ use Category;
 use Util;
 
 my $cgi = CGI->new;
+my $util = Util->new;
 my $valid_flag = 0;
-$valid_flag = 1 if(Util->is_valid($cgi));
+$valid_flag = 1 if($util->is_valid($cgi));
 
 my $page_no = $cgi->param("page_no");
 $page_no = 1 unless(defined($page_no) and $page_no);
 ################################################################################
 my %category_hash = ();
-my $dbh = DBI->connect(Util->connect_info);
+my $dbh = DBI->connect($util->connect_info);
 my $sql = "SELECT * FROM category";
 my $sth = $dbh->prepare($sql);
 $sth->execute();
@@ -68,12 +69,12 @@ $dbh->disconnect();
 ################################################################################
 
 print $cgi->header(
-    -charset=>"euc-kr"
+    -charset=>$util->get("charset")
     );
 print $cgi->start_html(
     -title=>"Article List",
-    -style=>"style.css",
-    -script=>{type =>"text/javascript", src=>"script.js"},
+    -style=>$util->get("loc-css"),
+    -script=>{type =>"text/javascript", src=>$util->get("loc-js")},
     -meta=>{"viewport"=>"width=device-width, initial-scale=1.0"},
     );
 require "before.pl";

@@ -8,10 +8,16 @@ use CGI;
 use lib "lib";
 use PNet;
 use Article;
+use Util;
 
+my $util = Util->new;
+# unless($util->is_valid($cgi)){
+#     $util->invalidate($cgi);
+#     return;
+# }
 ################################################################################
 my @articles = ();
-my $dbh = DBI->connect(Util->connect_info);
+my $dbh = DBI->connect($util->connect_info);
 my $sql = "SELECT * FROM article";
 my $sth = $dbh->prepare($sql);
 $sth->execute();
@@ -36,17 +42,14 @@ $end = index($response, "<hr />");
 my $result1 = substr($response, $start + 24, ($end-$start-24));
 ################################################################################
 my $cgi = CGI->new;
-# unless(Util->is_valid($cgi)){
-#     Util->invalidate($cgi);
-#     return;
-# }
+
 print $cgi->header(
-    -charset=>"euc-kr"
+    -charset=>$util->get("charset")
     );
 print $cgi->start_html(
     -title=>"tmpl",
-    -style=>"style.css",
-    -script=>{type =>"text/javascript", src=>"script.js"},
+    -style=>$util->get("loc-css"),
+    -script=>{type =>"text/javascript", src=>$util->get("loc-js")},
     -meta=>{"viewport"=>"width=device-width, initial-scale=1.0"},
     );
 require "before.pl";
