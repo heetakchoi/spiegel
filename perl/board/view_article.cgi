@@ -30,18 +30,6 @@ while(my @rows = $sth->fetchrow_array()){
 }
 $sth->finish();
 
-$sql = "SELECT srno FROM article WHERE srno > ? ORDER BY ymd ASC LIMIT 1";
-$sth = $dbh->prepare($sql);
-$sth->execute($srno);
-my ($upper_srno) = $sth->fetchrow_array();
-$sth->finish();
-
-$sql = "SELECT srno FROM article WHERE srno < ? ORDER BY ymd DESC LIMIT 1";
-$sth = $dbh->prepare($sql);
-$sth->execute($srno);
-my ($lower_srno) = $sth->fetchrow_array();
-$sth->finish();
-
 $sql = "SELECT * FROM article WHERE srno = ?";
 $sth = $dbh->prepare($sql);
 $sth->execute($srno);
@@ -49,6 +37,17 @@ my @row = $sth->fetchrow_array();
 my $article = Article->new(@row);
 $sth->finish();
 
+$sql = "SELECT srno FROM article WHERE ymd >= ? AND srno != ? ORDER BY ymd ASC LIMIT 1";
+$sth = $dbh->prepare($sql);
+$sth->execute($article->ymd, $srno);
+my ($upper_srno) = $sth->fetchrow_array();
+$sth->finish();
+
+$sql = "SELECT srno FROM article WHERE ymd <= ? AND srno != ? ORDER BY ymd DESC LIMIT 1";
+$sth = $dbh->prepare($sql);
+$sth->execute($article->ymd, $srno);
+my ($lower_srno) = $sth->fetchrow_array();
+$sth->finish();
 $dbh->disconnect();
 
 my $category_name = $category_hash{$article->category_srno}->category_name;
