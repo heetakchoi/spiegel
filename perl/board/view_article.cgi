@@ -33,21 +33,56 @@ $sth->finish();
 $sql = "SELECT * FROM article WHERE srno = ?";
 $sth = $dbh->prepare($sql);
 $sth->execute($srno);
-my @row = $sth->fetchrow_array();
-my $article = Article->new(@row);
+my $article = Article->new($sth->fetchrow_array());
 $sth->finish();
 
-$sql = "SELECT srno FROM article WHERE ymd >= ? AND srno != ? ORDER BY ymd ASC LIMIT 1";
+
+$sql = "SELECT * FROM article WHERE ymd >= ? ORDER BY ymd ASC, created ASC";
 $sth = $dbh->prepare($sql);
-$sth->execute($article->ymd, $srno);
-my ($upper_srno) = $sth->fetchrow_array();
+$sth->execute($article->ymd);
+my $self_flag = 0;
+my $upper_srno;
+while(my $one = Article->new($sth->fetchrow_array())){
+    if($one->ymd eq $article->ymd){
+        if($self_flag){
+            $upper_srno = $one->srno;
+            last;
+        }else{
+            if($one->srno == $article->srno){
+                $self_flag = 1;
+            }
+            next;
+        }
+    }else{
+        $upper_srno = $one->srno;
+        last;
+    }
+}
 $sth->finish();
 
-$sql = "SELECT srno FROM article WHERE ymd <= ? AND srno != ? ORDER BY ymd DESC LIMIT 1";
+$sql = "SELECT * FROM article WHERE ymd <= ? ORDER BY ymd DESC, created DESC ";
 $sth = $dbh->prepare($sql);
-$sth->execute($article->ymd, $srno);
-my ($lower_srno) = $sth->fetchrow_array();
+$sth->execute($article->ymd);
+$self_flag = 0;
+my $lower_srno;
+while(my $one = Article->new($sth->fetchrow_array())){
+    if($one->ymd eq $article->ymd){
+        if($self_flag){
+            $lower_srno = $one->srno;
+            last;
+        }else{
+            if($one->srno == $article->srno){
+                $self_flag = 1;
+            }
+            next;
+        }
+    }else{
+        $lower_srno = $one->srno;
+        last;
+    }
+}
 $sth->finish();
+
 $dbh->disconnect();
 
 my $category_name = $category_hash{$article->category_srno}->category_name;
