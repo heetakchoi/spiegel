@@ -160,7 +160,7 @@ sub unchunk{
 }
 
 sub send_post{
-    my ($class_or_self, $host, $port, $req_uri, $ref_parammap, $ref_headermap, $brief_flag) = @_;
+    my ($class_or_self, $host, $port, $req_uri, $ref_parammap, $payload, $ref_headermap, $brief_flag) = @_;
     my $response = "";
 
 	my $request_line = "POST $req_uri HTTP/1.1\r\n";
@@ -187,6 +187,9 @@ sub send_post{
 		}
 		my $param_pair = uri_escape($paramkey) . "=" . uri_escape($paramvalue);
 		$body_str .= $param_pair;
+	}
+	if(defined($payload)){
+		$body_str = $payload;
 	}
 	my $body_size = length($body_str);
 	$headermap{"Content-Length"} = $body_size;
