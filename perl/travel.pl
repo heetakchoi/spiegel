@@ -3,7 +3,11 @@
 use strict;
 use warnings;
 
-my $terminal = 6;
+my $terminal = 19;
+my $penalty_distance = 20;
+my $input = shift(@ARGV);
+$terminal = $input if(defined($input));
+
 my $index = 0;
 my @history_list = (Step->new(-1, ""));
 
@@ -24,14 +28,36 @@ while(1){
 
 foreach my $one_step (@history_list){
 	my $raw_history = $one_step->history;
-	print $raw_history,  " - ";
+	my @numbers = ();
+	push(@numbers, 0);
 	foreach my $char_index ( (0..(length($raw_history)-1)) ){
 		if(substr($raw_history, $char_index, 1) > 0){
-			print ($char_index+1);
-			print " ";
+		    push(@numbers, $char_index+1);
 		}
 	}
-	print "\n";
+	push(@numbers, $terminal+1);
+	my @distance_list = ();
+	for(my $index = 0; $index<scalar(@numbers)-1; $index ++){
+	    push(@distance_list, $numbers[$index+1]-$numbers[$index]);
+	}
+	my $k = 0;
+	my $distance_list_size = scalar(@distance_list);
+	if($distance_list_size %2 == 0){
+	    $k = $distance_list_size/2;
+	}else{
+	    $k = $distance_list_size/2 +1;
+	}
+	my $distance = 0;
+	foreach (@distance_list){
+	    $distance += $_*($_+1);
+	}
+	$distance += $penalty_distance*$k;
+	print $distance;
+	print " - ";
+	print $raw_history,  " - ";
+	print "@distance_list";
+	print " - ";
+	print "@numbers", "\n";
 }
 print scalar(@history_list), "\n";
 
