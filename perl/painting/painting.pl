@@ -4,14 +4,14 @@ use strict;
 use warnings;
 
 my $terminal = shift(@ARGV);
-$terminal = 19 if(defined($terminal));
-my $penalty_distance = $terminal +1;
+$terminal = 20 unless(defined($terminal));
+my $penalty_distance = $terminal;
 
 my $index = 0;
 my @history_list = (Step->new(-1, ""));
 
 while(1){
-    if($index >=$terminal){
+    if($index >=$terminal-1){
 	last;
     }
     $index ++;
@@ -34,7 +34,7 @@ foreach my $one_step (@history_list){
 	    push(@numbers, $char_index+1);
 	}
     }
-    push(@numbers, $terminal+1);
+    push(@numbers, $terminal);
     my @distance_list = ();
     for(my $index = 0; $index<scalar(@numbers)-1; $index ++){
 	push(@distance_list, $numbers[$index+1]-$numbers[$index]);
