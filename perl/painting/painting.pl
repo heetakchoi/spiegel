@@ -41,11 +41,7 @@ foreach my $one_step (@history_list){
     }
     my $k = 0;
     my $distance_list_size = scalar(@distance_list);
-    if($distance_list_size %2 == 0){
-	$k = $distance_list_size/2;
-    }else{
-	$k = $distance_list_size/2 +1;
-    }
+    $k = int($distance_list_size/2);
     my $distance = 0;
     foreach (@distance_list){
 	$distance += $_*($_+1);
