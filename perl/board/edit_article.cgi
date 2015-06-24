@@ -19,6 +19,7 @@ unless($util->is_valid($cgi)){
 }
 
 my $srno = $cgi->param("srno");
+my $page_no = $cgi->param("page_no");
 ################################################################################
 my $dbh = DBI->connect($util->connect_info);
 
@@ -57,6 +58,7 @@ print  "<div id=\"main\">\n";
 print  "  <div style=\"margin-top:10px;margin-bottom:25px;\">\n";
 print  "<form name=\"formname\" method=\"post\" action=\"edit_article_end.cgi\">\n";
 printf "<input type=\"hidden\" name=\"srno\" value=\"%d\" />\n", $srno;
+printf "<input type=\"hidden\" name=\"page_no\" value=\"%d\" />\n", $page_no;
 printf "ymd: <input size=\"8\" type=\"text\" name=\"ymd\" value=\"%s\" />\n", $one_article->ymd;
 print "  status: ";
 print "  <select name=\"status\">";

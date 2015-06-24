@@ -123,7 +123,7 @@ if(defined($lower_srno)){
 }
 print  "  </div>\n"; # div.right
 print  "  <div class=\"left\">\n";
-printf "    <a href=\"edit_article.cgi?srno=%d\">edit article</a>\n", $article->srno if($valid_flag);
+printf "    <a href=\"edit_article.cgi?srno=%d&page_no=%d\">edit article</a>\n", $article->srno, $page_no if($valid_flag);
 print  "  </div>\n"; # div.left
 print  "  <div class=\"clear\"></div>\n"; # div.clear
 

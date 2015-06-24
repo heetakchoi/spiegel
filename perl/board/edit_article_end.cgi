@@ -24,6 +24,7 @@ my $status = $cgi->param("status");
 my $title = $cgi->param("title");
 my $content = $cgi->param("content");
 my $category_srno = $cgi->param("category_srno");
+my $page_no = $cgi->param("page_no");
 ################################################################################
 my $dbh = DBI->connect($util->connect_info);
 
@@ -38,4 +39,4 @@ $dbh->disconnect();
 print $cgi->header(
     -charset=>$util->get("charset")
     );
-print "<script> location.href = 'list_article.cgi'; </script>\n";
+printf "<script> location.href = 'view_article.cgi?srno=%d&page_no=%d'; </script>\n", $srno, $page_no;
