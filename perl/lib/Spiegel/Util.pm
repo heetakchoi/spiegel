@@ -29,7 +29,7 @@ sub get_ymd{
     return $ymd;
 }
 ################################################################################
-sub get_epoch{
+sub get_epoch_from_ymd{
     my ($ymd) = @_;
     my $year = substr($ymd, 0, 4);
     my $mm = substr($ymd, 4, 2);
@@ -39,5 +39,11 @@ sub get_epoch{
     $epoch_time += 32400;
     return $epoch_time;
 }
+################################################################################
+sub get_ymd_from_epoch{
+    my ($epoch) = @_;
+    return strftime '%Y%m%d', localtime $epoch;
+}
+################################################################################
 
 return "Spiegel::Util";
