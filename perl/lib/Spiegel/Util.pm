@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Exporter ("import");
-our @EXPORT_OK = ("trim", "get_ymd", "get_epoch");
+our @EXPORT_OK = ("trim", "get_ymd", "get_epoch", "get_logtime"), ;
 
 ################################################################################
 sub trim {
@@ -43,6 +43,12 @@ sub get_epoch_from_ymd{
 sub get_ymd_from_epoch{
     my ($epoch) = @_;
     return strftime '%Y%m%d', localtime $epoch;
+}
+################################################################################
+sub get_logtime{
+    my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) = localtime;
+    $mon = sprintf "%02d", $mon + 1;
+    return "[$mon-$mday $hour:$min:$sec]";
 }
 ################################################################################
 
