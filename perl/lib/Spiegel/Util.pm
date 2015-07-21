@@ -47,8 +47,7 @@ sub get_ymd_from_epoch{
 ################################################################################
 sub get_logtime{
     my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) = localtime;
-    $mon = sprintf "%02d", $mon + 1;
-    return "[$mon-$mday $hour:$min:$sec]";
+    return sprintf "[%02d-%02d %02d:%02d:%02d]", $mon+1, $mday, $hour, $min, $sec;
 }
 ################################################################################
 
