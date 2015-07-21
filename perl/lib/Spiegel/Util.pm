@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Exporter ("import");
-our @EXPORT_OK = ("trim", "get_ymd");
+our @EXPORT_OK = ("trim", "get_ymd", "get_epoch");
 
 ################################################################################
 sub trim {
@@ -29,5 +29,15 @@ sub get_ymd{
     return $ymd;
 }
 ################################################################################
+sub get_epoch{
+    my ($ymd) = @_;
+    my $year = substr($ymd, 0, 4);
+    my $mm = substr($ymd, 4, 2);
+    my $dd = substr($ymd, 6, 2);
+
+    my $epoch_time = timelocal(0,0,0,$dd,$mm-1,$year-1900);
+    $epoch_time += 32400;
+    return $epoch_time;
+}
 
 return "Spiegel::Util";
