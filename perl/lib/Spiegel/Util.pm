@@ -3,6 +3,8 @@ package Spiegel::Util;
 use strict;
 use warnings;
 
+use POSIX;
+
 use Exporter ("import");
 our @EXPORT_OK = ("trim", "get_ymd", "get_epoch", "get_logtime"), ;
 
