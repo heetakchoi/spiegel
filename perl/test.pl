@@ -41,7 +41,7 @@ sub test_tpc;
 test_tpc;
 
 sub test_tpc{
-    my $tpc = TPC->new;
+    my $tpc = Spiegel::TPC->new();
     foreach my $one ( (2..9) ){
 	$tpc->set( $one, $one*2 );
     }
