@@ -40,3 +40,5 @@ sub list_keys{
     my ($self) = @_;
     return keys %{$self->{LIST_SEED}};
 }
+
+return "Spiegel::TPC";
