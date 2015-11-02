@@ -1,3 +1,5 @@
+@import url(http://api.mobilis.co.kr/webfonts/css/?fontface=NanumGothicWeb); 
+
 body{
     background-color: gainsboro;
 }
@@ -17,6 +19,7 @@ div.head{
 }
 div.content{
     width: 100%;
+
 }
 div.ad{}
 div.foot{
@@ -46,10 +49,10 @@ div.clear{
 div.paragraph{
     margin: 10px;
     margin-top: 15px;
-    margin-bottom: 15px;
+    margin-bottom: 15px;    
 }
 div.menu{
-    margin-left: 25px;
+    margin-left: 10px;
     margin-top: 10px;
 }
 div.main{
@@ -59,6 +62,36 @@ blockquote{
     color: MediumSlateBlue;
     border-left-style: solid;
     border-color: silver;
+    margin-right: 10px;
     margin-left: 10px;
     padding-left: 10px;
+}
+
+div.title_area{
+    margin-top: 10px;
+    margin-left: 20px;
+    font-weight: bold;
+    font-size: 120%;
+}
+div.ymd_area{
+    font-size: 0.5em;
+    vertical-align: bottom;
+    text-align: right;
+    margin-right: 20px;
+}
+
+div.content_area{
+    margin-top: 20px;
+    margin-bottom: 20px;
+    
+    line-height: 2.0em;
+    font-family: 'NanumGothic', '나눔고딕','NanumGothicWeb', '맑은 고딕', 'Malgun Gothic', Dotum;
+    font-size: 0.9em;
+    /* border-style: solid; */
+}
+div.content_area img{
+    width: 320px;
+}
+div.content_area pre{
+    line-height: 1.2em;
 }

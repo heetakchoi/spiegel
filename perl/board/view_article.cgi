@@ -17,6 +17,10 @@ my $valid_flag = 0;
 $valid_flag = 1 if($util->is_valid($cgi));
 my $srno = $cgi->param("srno");
 my $page_no = $cgi->param("page_no");
+unless(defined($srno)){
+    $util->invalidate($cgi);
+    return;
+}
 ################################################################################
 my $dbh = DBI->connect($util->connect_info);
 
@@ -36,7 +40,6 @@ $sth->execute($srno);
 my $article = Article->new($sth->fetchrow_array());
 $sth->finish();
 
-
 $sql = "SELECT * FROM article WHERE ymd >= ? ORDER BY ymd ASC, created ASC";
 $sth = $dbh->prepare($sql);
 $sth->execute($article->ymd);
@@ -44,18 +47,18 @@ my $self_flag = 0;
 my $upper_srno;
 while(my $one = Article->new($sth->fetchrow_array())){
     if($one->ymd eq $article->ymd){
-        if($self_flag){
-            $upper_srno = $one->srno;
-            last;
-        }else{
-            if($one->srno == $article->srno){
-                $self_flag = 1;
-            }
-            next;
-        }
+	if($self_flag){
+	    $upper_srno = $one->srno;
+	    last;
+	}else{
+	    if($one->srno == $article->srno){
+		$self_flag = 1;
+	    }
+	    next;
+	}
     }else{
-        $upper_srno = $one->srno;
-        last;
+	$upper_srno = $one->srno;
+	last;
     }
 }
 $sth->finish();
@@ -67,18 +70,18 @@ $self_flag = 0;
 my $lower_srno;
 while(my $one = Article->new($sth->fetchrow_array())){
     if($one->ymd eq $article->ymd){
-        if($self_flag){
-            $lower_srno = $one->srno;
-            last;
-        }else{
-            if($one->srno == $article->srno){
-                $self_flag = 1;
-            }
-            next;
-        }
+	if($self_flag){
+	    $lower_srno = $one->srno;
+	    last;
+	}else{
+	    if($one->srno == $article->srno){
+		$self_flag = 1;
+	    }
+	    next;
+	}
     }else{
-        $lower_srno = $one->srno;
-        last;
+	$lower_srno = $one->srno;
+	last;
     }
 }
 $sth->finish();
@@ -94,9 +97,9 @@ print $cgi->header(
 print $cgi->start_html(
     -title=>"View Article",
     -style=>$util->get("loc-css"),
-    -script=>{type =>"text/javascript", src=>$util->get("loc-js")},
     -meta=>{"viewport"=>"width=device-width, initial-scale=1.0"},
     );
+
 require "before.pl";
 
 print  "<div class=\"main\">\n";
@@ -105,9 +108,9 @@ printf "    <a href=\"list_article.cgi?page_no=%d\">list article</a>\n", $page_n
 print  "  </div>\n"; # div.right
 print  "  <div class=\"clear\"></div>\n"; # div.clear
 
-printf "  <div style=\"margin-top:10px;\">%s</div>\n", $article->title;
-printf "  <div style=\"font-size:0.5em; vertical-align:bottom;\">(%s %s %s) - %s</div>", substr($article->ymd, 0, 4), substr($article->ymd, 4, 2), substr($article->ymd, 6, 2), $category_name;
-printf "  <div style=\"margin-left: 25px;margin-top: 20px;margin-bottom: 25px;\">%s</div>\n", Util->html_output($article->content);
+printf "  <div class=\"title_area\">%s</div>\n", $article->title;
+printf "  <div class=\"ymd_area\">(%s %s %s) - %s</div>", substr($article->ymd, 0, 4), substr($article->ymd, 4, 2), substr($article->ymd, 6, 2), $category_name;
+printf "  <div class=\"content_area\">%s</div>\n", Util->html_output($article->content);
 
 print  "  <div class=\"right\">\n";
 if(defined($upper_srno)){
@@ -125,6 +128,7 @@ print  "  </div>\n"; # div.right
 print  "  <div class=\"left\">\n";
 printf "    <a href=\"edit_article.cgi?srno=%d&page_no=%d\">edit article</a>\n", $article->srno, $page_no if($valid_flag);
 print  "  </div>\n"; # div.left
+
 print  "  <div class=\"clear\"></div>\n"; # div.clear
 
 print  "</div>\n"; # div.main

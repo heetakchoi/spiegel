@@ -83,6 +83,10 @@ foreach (@categories){
 print "  </select>\n";
 print "  <input type=\"submit\" name=\"submit\" value=\"submit\" />\n";
 print "</form>\n";
+my $info = "<blockquote></blockquote>\n"
+    . "\\( \\frac{25}{90} \\)\n"
+    . "<span style=\"text-decoration:line-through;\"></span>";
+printf "<textarea rows=\"4\" cols=\"35\">%s</textarea>\n", $info;
 print "  </div>\n"; # div
 
 print  "  <div class=\"left\">\n";

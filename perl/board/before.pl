@@ -17,6 +17,7 @@ my $page_no = $cgi->param("page_no");
 $page_no = 0 unless(defined($page_no));
 
 print "<script>\n";
+
 print "(function() {\n";
 print "    function async_load(){\n";
 print "        var s = document.createElement('script');\n";
@@ -29,6 +30,14 @@ print "    }\n";
 print "    window.attachEvent ? window.attachEvent('onload', async_load) : window.addEventListener('load', async_load, false);\n";
 print "})();\n";
 print "</script>\n";
+
+
+
+
+
+
+
+
 
 print "<script type=\"text/javascript\"\n";
 print "  src=\"https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML\">\n";
