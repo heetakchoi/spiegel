@@ -80,21 +80,36 @@ foreach (@tokens){
 	push(@words, $token);
     }
 }
-
+my $indent = 0;
+my $unit = "  ";
 foreach my $word (@words){
-    print $word, "\n";
+    # print $_, "\n";
+    
+    if($word eq "{" or $word eq "["){
+	printf "%s%s\n", $unit x $indent, $word;
+	$indent ++;
+    }elsif($word eq "}" or $word eq "]"){
+	$indent --;
+	printf "%s%s\n", $unit x $indent, $word;
+    }else{
+	printf "%s%s\n", $unit x $indent, $word;
+    }
 }
 
 {
     package Node;
 
     sub new{
-	my ($class, $name) = @_;
+	my ($class) = @_;
 	my $self = {};
-	$self->{"name"} = $name;
 	$self->{"children"} = [];
 	bless($self, $class);
 	return $self;
+    }
+    sub type{
+	my ($self, $neo) = @_;
+	$self->{"type"} = $neo if(defined($neo));
+	return $self->{"type"};
     }
     sub adopt{
 	my ($self, $child) = @_;
@@ -105,7 +120,7 @@ foreach my $word (@words){
     sub info{
 	my ($self, $indent) = @_;
 	$indent = 0 unless(defined($indent));
-	printf "%s%s\n", " "x$indent, $self->{"name"};
+	printf "%s%s\n", " "x$indent, $self->{"type"};
 	$indent ++;
 	foreach (get_children($self)){
 	    info($_, $indent);
