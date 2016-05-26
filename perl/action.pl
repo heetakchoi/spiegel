@@ -10,9 +10,32 @@ sub tokenizer;
 my $json_text = load_text;
 my @tokens = tokenizer($json_text);
 
-foreach (@tokens){
-    print $_, "\n";
+my $root_node = undef;
+my $parent_node = undef;
+my $current_node = undef;
+my $status = "INIT";
+my $index = 0;
+my $token_size = scalar(@tokens);
+
+while($index < $token_size){
+    my $token = $tokens[$index];
+    if($token eq "{"){
+	$current_node = Node->new;
+	$current_node->type("object");
+	unless(defined($parent_node)){
+	    $root_node = $current_node;
+	    $status = "REQ_NAME";
+	}
+    }elsif($token eq "["){
+    }elsif($token eq ":"){
+    }elsif($token eq ","){
+    }else{
+
+    }
+    $index ++;
 }
+
+
 
 {
     package Node;
@@ -27,16 +50,6 @@ foreach (@tokens){
 	my ($self, $neo) = @_;
 	$self->{"type"} = $neo if(defined($neo));
 	return $self->{"type"};
-    }
-
-    sub info{
-	my ($self, $indent) = @_;
-	$indent = 0 unless(defined($indent));
-	printf "%s%s\n", " "x$indent, $self->{"type"};
-	$indent ++;
-	foreach (get_children($self)){
-	    info($_, $indent);
-	}
     }
     sub children{
 	my ($self) = @_;
