@@ -36,13 +36,14 @@ while($index < $token_size){
 }
 
 
-
 {
     package Node;
     sub new{
 	my ($class) = @_;
 	my $self = {};
-	$self->{"children"} = [];
+	$self->{"normal"} = undef;
+	$self->{"object"} = {};
+	$self->{"array"} = [];
 	bless($self, $class);
 	return $self;
     }
@@ -51,9 +52,21 @@ while($index < $token_size){
 	$self->{"type"} = $neo if(defined($neo));
 	return $self->{"type"};
     }
-    sub children{
+    sub keys{
 	my ($self) = @_;
-	return @{$self->{"children"}};
+	return keys %{$self->{"object"}};
+    }
+    sub get{
+	my ($self, $key) = @_;
+	if(defined($key)){
+	    return $self->{"object"}->{$key};
+	}else{
+	    return $self->{"normal"};
+	}
+    }
+    sub values{
+	my ($self) = @_;
+	return @{$self->{"array"}};
     }
     sub adopt{
 	my ($self, $child) = @_;
