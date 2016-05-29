@@ -21,10 +21,9 @@ my $index_ref = \$index;
 my $unit = ".";
 
 my $init_node = proc($tokens_ref, $index_ref, 0);
-# print $init_node->info;
 my @data = $init_node->get("\"data\"")->array_gets();
 foreach (@data){
-    printf "-- %s\n", $_->info;
+    printf "%s\n", $_->get("\"images\"")->get("\"standard_resolution\"")->get("\"url\"")->get;
 }
 
 sub proc{
@@ -54,33 +53,33 @@ sub proc_brace{
 	# 빈 object {} 의 경우이다.
 	# 바로 리턴하여 object 구성을 종료시킨다.
 	$$index_ref ++;
+	$$index_ref ++;
 	return $node;
     }
     
     while(1){
 	$$index_ref ++;
-	my $candidate = $tokens_ref->[$$index_ref];
 	# 토큰 3개를 차례로 name, :, value 로 간주하여 처리한다.
 	# 단 value 는 다시 object 나 array 가 될수 있으므로 proc 을 다시 호출하여 node 로 만든다.
-	my $name = $candidate;
+	my $name = $tokens_ref->[$$index_ref];
 	$$index_ref ++; # 콜론 자리
 	$$index_ref ++; # value 시작
 	my $value_node = proc($tokens_ref, $index_ref, $indent +1);
 	$node->object_set($name, $value_node);
 	
 	# 그 다음 토큰을 체크한다. "," 이면 한 번 더 돌고 "}" 이면 종료시킨다.
-	# $$index_ref ++;
 	if($tokens_ref->[$$index_ref] eq ","){
 	    # 흘려 보내서 while 을 다시 타게 한다.
 	}elsif($tokens_ref->[$$index_ref] eq "}"){
 	    # 이번 object 구성을 종료시킨다.
 	    $$index_ref ++;
 	    last;
+	}else{
+	    die "Type Brace: Can not possible [".$tokens_ref->[$$index_ref]."]\n";
 	}
     }
     my $end_index = $$index_ref -1;
     my $content = "";
-    my $undef_size = 0;
     foreach ($start_index..$end_index){
 	$content .= $tokens_ref->[$_];
     }
@@ -98,24 +97,25 @@ sub proc_bracket{
 	# 빈 array [] 의 경우이다.
 	# 바로 리턴하여 array 구성을 종료시킨다.
 	$$index_ref ++;
+	$$index_ref ++;
 	return $node;
     }
     
     while(1){
 	$$index_ref ++;
-	my $candidate = $tokens_ref->[$$index_ref];
 	# value node 를 생성한다.
 	my $value_node = proc($tokens_ref, $index_ref, $indent +1);
 	$node->array_add($value_node);
 
 	# 그 다음 토큰을 체크한다. "," 이면 한 번 더 돌고 "]" 이면 종료한다.
-	# $$index_ref ++;
 	if($tokens_ref->[$$index_ref] eq ","){
 	    # 다시 while 문을 돈다.
 	}elsif($tokens_ref->[$$index_ref] eq "]"){
 	    # array 구성을 종료시킨다.
 	    $$index_ref ++;
 	    last;
+	}else{
+	    die "Type Bracket: Can not possible [".$tokens_ref->[$$index_ref]."]\n";
 	}
     }
 
@@ -135,7 +135,6 @@ sub proc_normal{
     # 이건 normal 타입이다.
     $node->type("normal");
     # 토큰을 값으로 세팅한다
-
     $node->normal_set($candidate);
     $node->content($candidate);
     $$index_ref ++;
@@ -212,7 +211,7 @@ sub proc_normal{
     }
     sub info{
 	my ($self) = @_;
-	return sprintf "[%s][%s] %s", " "x$self->{"indent"}, $self->{"type"}, $self->{"content"};
+	return sprintf "%sType: %s Content: %s", " "x$self->{"indent"}, $self->{"type"}, $self->{"content"};
     }
     sub content{
 	my ($self, $neo) = @_;
