@@ -15,125 +15,120 @@ sub proc_normal;
 my $txt = load_text;
 my @token_list = tokenizer($txt);
 
-my $parent_node = undef;
 my $tokens_ref = \@token_list;
 my $index = 0;
 my $index_ref = \$index;
 my $unit = ".";
 
-my $init_node = proc($tokens_ref, $index_ref, $parent_node, 1);
-print $init_node->info;
+my $init_node = proc($tokens_ref, $index_ref, 0);
+# print $init_node->info;
+my @data = $init_node->get("\"data\"")->array_gets();
+foreach (@data){
+    printf "-- %s\n", $_->info;
+}
 
 sub proc{
-    my ($tokens_ref, $index_ref, $parent_node, $indent) = @_;
+    my ($tokens_ref, $index_ref, $indent) = @_;
     my $one_token = $tokens_ref->[$$index_ref];
     my $node;
     # 더 이상 읽어들일 것이 없으면 중지한다.
     return unless(defined($one_token));
 
     if($one_token eq "{"){
-	$node = proc_brace($tokens_ref, $index_ref, $parent_node, $indent);
+	$node = proc_brace($tokens_ref, $index_ref, $indent);
     }elsif($one_token eq "["){
-	$node = proc_bracket($tokens_ref, $index_ref, $parent_node, $indent);
+	$node = proc_bracket($tokens_ref, $index_ref, $indent);
     }else{
-	$node = proc_normal($tokens_ref, $index_ref, $parent_node, $indent);
+	$node = proc_normal($tokens_ref, $index_ref, $indent);
     }
     return $node;
 }
 sub proc_brace{
-    my ($tokens_ref, $index_ref, $parent_node, $indent) = @_;
+    my ($tokens_ref, $index_ref, $indent) = @_;
     my $start_index = $$index_ref;
-    # 이미 { 를 가리키고 있다.
-    # 노드를 하나 만든다.
+
     my $node = Node->new;
-    # 이건 object 타입이다.
     $node->type("object");
-    # 이제 name:value 를 쌍으로 꺼내 node 에 세팅하기 시작한다.
-    # 단 이 쌍 처리가 한 번 완료하면 그 다음이 , 인지 } 인지 확인하여
-    # 계속 name/value 세팅을 계속할 지 아니면 종료할지를 판단한다.
-    # 더 이상 읽어들일 것이 없으면 중지한다.
+
+    if($tokens_ref->[$$index_ref +1] eq "}"){
+	# 빈 object {} 의 경우이다.
+	# 바로 리턴하여 object 구성을 종료시킨다.
+	$$index_ref ++;
+	return $node;
+    }
+    
     while(1){
 	$$index_ref ++;
 	my $candidate = $tokens_ref->[$$index_ref];
-	last unless(defined($candidate));
-
-	if($candidate eq "}"){
-	    # 이러면 끝 났다.
-	    # 다음을 처리할 수 있도록 인덱스를 하나 옮겨준다.
+	# 토큰 3개를 차례로 name, :, value 로 간주하여 처리한다.
+	# 단 value 는 다시 object 나 array 가 될수 있으므로 proc 을 다시 호출하여 node 로 만든다.
+	my $name = $candidate;
+	$$index_ref ++; # 콜론 자리
+	$$index_ref ++; # value 시작
+	my $value_node = proc($tokens_ref, $index_ref, $indent +1);
+	$node->object_set($name, $value_node);
+	
+	# 그 다음 토큰을 체크한다. "," 이면 한 번 더 돌고 "}" 이면 종료시킨다.
+	# $$index_ref ++;
+	if($tokens_ref->[$$index_ref] eq ","){
+	    # 흘려 보내서 while 을 다시 타게 한다.
+	}elsif($tokens_ref->[$$index_ref] eq "}"){
+	    # 이번 object 구성을 종료시킨다.
 	    $$index_ref ++;
 	    last;
-	}elsif($candidate eq ","){
-	    # 동일 레벨의 다음 쌍이 나올 것이다.
-	    # 반복한다.
-	}else{
-	    # 예약어가 아니므로 토큰 3개를 차례로 name, :, value 로 간주하여 처리한다.
-	    # 단 value 는 다시 object 나 array 가 될수 있으므로 proc 을 다시 호출하여 node 로 만든다.
-	    my $name = $candidate;
-	    $$index_ref ++; # 콜론 자리
-	    $$index_ref ++;
-	    my $value_node = proc($tokens_ref, $index_ref, $node, $indent +1);
-	    # 이번에 읽어들인 name/value 쌍을 세팅한다.
-	    $node->object_set($name, $value_node);
-	    # 다음 토큰을 while 루프 안에서 다시 판단하기 위해 인덱스를 하나 뒤로 물린다.
-	    $$index_ref --;
 	}
     }
-    $node->parent($parent_node) if(defined($parent_node));
     my $end_index = $$index_ref -1;
     my $content = "";
+    my $undef_size = 0;
     foreach ($start_index..$end_index){
 	$content .= $tokens_ref->[$_];
     }
-    printf "%s %s %s\n", "#### "x$indent, "object", $content;
+    $node->content($content);
     return $node;
 }
 sub proc_bracket{
-    my ($tokens_ref, $index_ref, $parent_node, $indent) = @_;
+    my ($tokens_ref, $index_ref, $indent) = @_;
     my $start_index = $$index_ref;
-    # 이미 [ 를 가리키고 있다.
-    # 노드를 하나 만든다.
-    my $node = Node->new;
-    # 이건 array 타입이다.
-    $node->type("array");
-    # 이제 value 를 하나씩 꺼내 node 에 추가하기 시작한다.
-    # 단 한 번 붙인 다음 그 다음이 , 인지 ] 인지 확인하여
-    # 붙임을 계속할 지 아니면 종료할지를 판단한다.
-    # 더 이상 읽어들일 것이 없으면 중지한다.
 
+    my $node = Node->new;
+    $node->type("array");
+
+    if($tokens_ref->[$$index_ref +1] eq "]"){
+	# 빈 array [] 의 경우이다.
+	# 바로 리턴하여 array 구성을 종료시킨다.
+	$$index_ref ++;
+	return $node;
+    }
+    
     while(1){
 	$$index_ref ++;
 	my $candidate = $tokens_ref->[$$index_ref];
-	last unless(defined($candidate));
+	# value node 를 생성한다.
+	my $value_node = proc($tokens_ref, $index_ref, $indent +1);
+	$node->array_add($value_node);
 
-	if($candidate eq "]"){
-	    # 이러면 끝 났다.
- 	    # 다음을 처리할 수 있도록 인덱스를 하나 옮겨준다.
+	# 그 다음 토큰을 체크한다. "," 이면 한 번 더 돌고 "]" 이면 종료한다.
+	# $$index_ref ++;
+	if($tokens_ref->[$$index_ref] eq ","){
+	    # 다시 while 문을 돈다.
+	}elsif($tokens_ref->[$$index_ref] eq "]"){
+	    # array 구성을 종료시킨다.
 	    $$index_ref ++;
 	    last;
-	}elsif($candidate eq ","){
-	    # 다음이 나올 것이다.
-	    # 반복한다.
-	}else{
-	    # 예약어가 아니므로 붙인다.
-	    # 단 object 나 array 가 될수 있으므로 proc 을 다시 호출하여 node 로 만든다.
-	    my $value_node = proc($tokens_ref, $index_ref, $node, $indent +1);
-	    # value node를 추가한다
-	    $node->array_add($value_node);
-	    # 다음 토큰을 while 루프 안에서 다시 판단하기 위해 인덱스를 하나 뒤로 물린다.
-	    $$index_ref --;
 	}
     }
-    $node->parent($parent_node) if(defined($parent_node));
-    my $end_index = $$index_ref-1;
+
+    my $end_index = $$index_ref -1;
     my $content = "";
     foreach ($start_index..$end_index){
-	$content .= $tokens_ref->[$_];
+	$content .= $tokens_ref->[$_] if(defined($tokens_ref->[$_]));
     }
-    printf "%s %s %s\n", "#### "x$indent, "array", $content;
+    $node->content($content);
     return $node;
 }
 sub proc_normal{
-    my ($tokens_ref, $index_ref, $parent_node, $indent) = @_;
+    my ($tokens_ref, $index_ref, $indent) = @_;
     my $candidate = $tokens_ref->[$$index_ref];
     # 노드를 하나 만든다.
     my $node = Node->new;
@@ -142,8 +137,8 @@ sub proc_normal{
     # 토큰을 값으로 세팅한다
 
     $node->normal_set($candidate);
-
-    $node->parent($parent_node) if(defined($parent_node));
+    $node->content($candidate);
+    $$index_ref ++;
     return $node;
 }
 {
@@ -152,24 +147,31 @@ sub proc_normal{
 	my ($class) = @_;
 	my $self = {};
 	$self->{"type"} = undef;
-	$self->{"parent"} = undef;
 	$self->{"object"} = {};
 	$self->{"array"} = [];
 	$self->{"normal"} = undef;
 	$self->{"indent"} = 0;
+	$self->{"content"} = undef;
 
 	bless($self, $class);
 	return $self;
+    }
+    sub get{
+	my ($self, $key) = @_;
+	if(defined($key)){
+	    return object_get($self, $key);
+	}else{
+	    return normal_get($self);
+	}
+    }
+    sub gets{
+	my ($self) = @_;
+	return array_gets($self);
     }
     sub type{
 	my ($self, $neo) = @_;
 	$self->{"type"} = $neo if(defined($neo));
 	return $self->{"type"};
-    }
-    sub parent{
-	my ($self, $neo) = @_;
-	$self->{"parent"} = $neo if(defined($neo));
-	return $self->{"parent"};
     }
     sub object_get{
 	my ($self, $key) = @_;
@@ -207,11 +209,15 @@ sub proc_normal{
 	my ($self, $neo) = @_;
 	$self->{"indent"} = $neo if(defined($neo));
 	return $self->{"indent"};
-    }    
+    }
     sub info{
 	my ($self) = @_;
-	my $detail = "";
-	return sprintf "%s%s\n", " "x$self->{"indent"}, $self->{"type"};
+	return sprintf "[%s][%s] %s", " "x$self->{"indent"}, $self->{"type"}, $self->{"content"};
+    }
+    sub content{
+	my ($self, $neo) = @_;
+	$self->{"content"} = $neo if(defined($neo));
+	return $self->{"content"};
     }
 }
 sub tokenizer{

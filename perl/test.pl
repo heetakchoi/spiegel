@@ -7,7 +7,6 @@ use lib "lib";
 use Spiegel::Util("trim", "get_ymd");
 use Spiegel::Net("send_get", "send_post", "send_ssl_get");
 use Spiegel::Prime;
-use Spiegel::TPC;
 
 sub test_util_trim;
 sub test_util_get_ymd;
@@ -17,8 +16,6 @@ sub test_net_send_post;
 sub test_net_send_ssl_get;
 
 sub test_prime;
-
-sub test_tpc;
 
 # test_util_trim(" 안녕하세요 세계 ");
 # test_util_get_ymd(-1);
@@ -37,32 +34,6 @@ sub test_tpc;
 #     1, 1);
 
 # test_prime;
-
-test_tpc;
-
-sub test_tpc{
-    my $tpc = Spiegel::TPC->new();
-    foreach my $one ( (2..9) ){
-	$tpc->set( $one, $one*2 );
-    }
-    print "Key (2..9) and Value key*2\n";
-    foreach my $key ( sort {$a<=>$b} $tpc->set_keys ){
-	printf "key : %s, val : %s\n", $key, $tpc->get($key);
-    }
-    foreach my $one ( (2..9) ){
-	foreach my $two( (1..9) ){
-	    $tpc->list_add($one, $one*$two);
-	}
-    }
-    print "Key (2..9) and list ( key* (1..9) )\n";
-    foreach my $key ( sort {$a<=>$b} $tpc->list_keys ){
-	printf "key : %s\n", $key;
-	foreach my $val ($tpc->list_get($key)){
-	    print "  $val";
-	}
-	print "\n";
-    }
-}
 
 sub test_util_trim{
     my ($arg) = @_;
