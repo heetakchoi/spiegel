@@ -1,48 +1,57 @@
-#!/usr/bin/perl
+package Spiegel::Json;
 
 use strict;
 use warnings;
 
-sub load_text;
-sub tokenizer;
-
-sub proc;
-sub proc_brace;
-sub proc_bracket;
-sub proc_normal;
-
-my $txt = load_text;
-my @token_list = tokenizer($txt);
-
-my $tokens_ref = \@token_list;
-my $index = 0;
-my $index_ref = \$index;
-my $unit = ".";
-
-my $init_node = proc($tokens_ref, $index_ref, 0);
-my @data = $init_node->get("data")->array_gets();
-foreach (@data){
-    printf "%s\n", $_->get("images")->get("standard_resolution")->get("url")->get;
+sub new{
+    my ($class) = @_;
+    my $self = {};
+    bless($self, $class);
+    return $self;
 }
-
+sub load_file{
+    my ($self, $file) = @_;
+    my $text = "";
+    open(my $fh, "<", $file);
+    while(<$fh>){
+	$text .= $_;
+    }
+    close($fh);
+    $self->{"text"} = $text;
+    return;
+}
+sub load_text{
+    my ($self, $text) = @_;
+    $self->{"text"} = $text;
+    return;
+}
+sub parse{
+    my ($self) = @_;
+    my @token_list = tokenizer($self);
+    my $tokens_ref = \@token_list;
+    my $index = 0;
+    my $index_ref = \$index;
+    my $init_node = proc($self, $tokens_ref, $index_ref, 0);
+    return $init_node;
+}
 sub proc{
-    my ($tokens_ref, $index_ref, $indent) = @_;
+    my ($self, $tokens_ref, $index_ref, $indent) = @_;
     my $one_token = $tokens_ref->[$$index_ref];
     my $node;
     # 더 이상 읽어들일 것이 없으면 중지한다.
     return unless(defined($one_token));
 
     if($one_token eq "{"){
-	$node = proc_brace($tokens_ref, $index_ref, $indent);
+	$node = proc_brace($self, $tokens_ref, $index_ref, $indent);
     }elsif($one_token eq "["){
-	$node = proc_bracket($tokens_ref, $index_ref, $indent);
+	$node = proc_bracket($self, $tokens_ref, $index_ref, $indent);
     }else{
-	$node = proc_normal($tokens_ref, $index_ref, $indent);
+	$node = proc_normal($self, $tokens_ref, $index_ref, $indent);
     }
     return $node;
 }
 sub proc_brace{
-    my ($tokens_ref, $index_ref, $indent) = @_;
+    my ($self, $tokens_ref, $index_ref, $indent) = @_;
     my $start_index = $$index_ref;
 
     my $node = Node->new;
@@ -63,7 +72,7 @@ sub proc_brace{
 	my $name = $tokens_ref->[$$index_ref];
 	$$index_ref ++; # 콜론 자리
 	$$index_ref ++; # value 시작
-	my $value_node = proc($tokens_ref, $index_ref, $indent +1);
+	my $value_node = proc($self, $tokens_ref, $index_ref, $indent +1);
 	$node->object_set($name, $value_node);
 	
 	# 그 다음 토큰을 체크한다. "," 이면 한 번 더 돌고 "}" 이면 종료시킨다.
@@ -86,7 +95,7 @@ sub proc_brace{
     return $node;
 }
 sub proc_bracket{
-    my ($tokens_ref, $index_ref, $indent) = @_;
+    my ($self, $tokens_ref, $index_ref, $indent) = @_;
     my $start_index = $$index_ref;
 
     my $node = Node->new;
@@ -103,7 +112,7 @@ sub proc_bracket{
     while(1){
 	$$index_ref ++;
 	# value node 를 생성한다.
-	my $value_node = proc($tokens_ref, $index_ref, $indent +1);
+	my $value_node = proc($self, $tokens_ref, $index_ref, $indent +1);
 	$node->array_add($value_node);
 
 	# 그 다음 토큰을 체크한다. "," 이면 한 번 더 돌고 "]" 이면 종료한다.
@@ -127,7 +136,7 @@ sub proc_bracket{
     return $node;
 }
 sub proc_normal{
-    my ($tokens_ref, $index_ref, $indent) = @_;
+    my ($self, $tokens_ref, $index_ref, $indent) = @_;
     my $candidate = $tokens_ref->[$$index_ref];
     # 노드를 하나 만든다.
     my $node = Node->new;
@@ -139,6 +148,73 @@ sub proc_normal{
     $$index_ref ++;
     return $node;
 }
+
+sub tokenizer{
+    my ($self) = @_;
+    my $json_text = $self->{"text"};
+    my @reserved = ("{", "}", "[", "]", ":", ",");
+    my %reserved_map = map { $_=>1 } @reserved;
+    my @tokens = ();
+    my @accumulated = ();
+    my $total_length = length($json_text);
+    my $idx = 0;
+    my $string_flag = 0;
+    my $before;
+    while($idx < $total_length){
+    	my $current = substr($json_text, $idx, 1);
+    	# 따옴표를 만났는데
+    	if($current eq "\""){
+    	    # 이미 문자열 상태였다고 하자.
+    	    if($string_flag){
+    		# 그런데 직전 문자가 역슬래시 였다면 계속 문자열 상태이다.
+    		if($before eq "\\"){
+    		    push(@accumulated, $current);
+    		}else{
+    		    # 그렇지 않다면 따옴표를 토큰으로 만들어 추가한다.
+    		    push(@accumulated, $current);
+		    # 시작과 끝 " 를 제거한다.
+		    shift(@accumulated);
+		    pop(@accumulated);
+		    # 누적 값을 토큰 리스트에 추가하고 초기화한다.
+    		    push(@tokens, join("", @accumulated));
+    		    @accumulated = ();
+    		    # 문자열 상태를 해제한다.
+    		    $string_flag = 0;
+    		}
+    	    }else{
+    		# 문자열 상황이 아니었다면 문자열 상태로 전환한다.
+    		push(@accumulated, $current);
+    		$string_flag = 1;
+    	    }
+    	}else{
+    	    # 문자열 상태일 때 따옴표가 아닌 문자는 예약어 여부에 관계없이 문자열로 처리한다.
+    	    if($string_flag){
+    		push(@accumulated, $current);
+    	    }else{
+    		# 문자열 상태가 아닌 상황에서 예약어를 만났다.
+    		if(defined($reserved_map{$current})){
+    		    # 이전에 누적한 값이 있다면
+    		    if(scalar(@accumulated)>0){
+    			# 토큰 리스트에 기존에 쌓았던 값을 붙여 토큰을 만들어 추가한다.
+    			push(@tokens, join ("", @accumulated));
+    		    }
+    		    # 예약어 자체도 토큰으로 만들어 추가하고 누적값을 초기화한다.
+    		    push(@tokens, $current);
+    		    @accumulated = ();
+		}elsif($current =~ m/\s/){
+		    # 문자열 상태가 아니면 공백은 무시한다.
+    		}else{
+    		    # 예약어가 아니라면 누적된 값에 추가해 놓는다.
+    		    push(@accumulated, $current);
+    		}
+    	    }
+    	}
+    	$idx ++;
+    	$before = $current;
+    }
+    return @tokens;
+}
+
 {
     package Node;
     sub new{
@@ -218,77 +294,5 @@ sub proc_normal{
 	return $self->{"content"};
     }
 }
-sub tokenizer{
-    my ($json_text) = @_;
-    my @reserved = ("{", "}", "[", "]", ":", ",");
-    my %reserved_map = map { $_=>1 } @reserved;
-    my @tokens = ();
-    my @accumulated = ();
-    my $total_length = length($json_text);
-    my $idx = 0;
-    my $string_flag = 0;
-    my $before;
-    while($idx < $total_length){
-    	my $current = substr($json_text, $idx, 1);
-    	# 따옴표를 만났는데
-    	if($current eq "\""){
-    	    # 이미 문자열 상태였다고 하자.
-    	    if($string_flag){
-    		# 그런데 직전 문자가 역슬래시 였다면 계속 문자열 상태이다.
-    		if($before eq "\\"){
-    		    push(@accumulated, $current);
-    		}else{
-    		    # 그렇지 않다면 따옴표를 토큰으로 만들어 추가한다.
-    		    push(@accumulated, $current);
-		    # 시작과 끝 " 를 제거한다.
-		    shift(@accumulated);
-		    pop(@accumulated);
-		    # 누적 값을 토큰 리스트에 추가하고 초기화한다.
-    		    push(@tokens, join("", @accumulated));
-    		    @accumulated = ();
-    		    # 문자열 상태를 해제한다.
-    		    $string_flag = 0;
-    		}
-    	    }else{
-    		# 문자열 상황이 아니었다면 문자열 상태로 전환한다.
-    		push(@accumulated, $current);
-    		$string_flag = 1;
-    	    }
-    	}else{
-    	    # 문자열 상태일 때 따옴표가 아닌 문자는 예약어 여부에 관계없이 문자열로 처리한다.
-    	    if($string_flag){
-    		push(@accumulated, $current);
-    	    }else{
-    		# 문자열 상태가 아닌 상황에서 예약어를 만났다.
-    		if(defined($reserved_map{$current})){
-    		    # 이전에 누적한 값이 있다면
-    		    if(scalar(@accumulated)>0){
-    			# 토큰 리스트에 기존에 쌓았던 값을 붙여 토큰을 만들어 추가한다.
-    			push(@tokens, join ("", @accumulated));
-    		    }
-    		    # 예약어 자체도 토큰으로 만들어 추가하고 누적값을 초기화한다.
-    		    push(@tokens, $current);
-    		    @accumulated = ();
-		}elsif($current =~ m/\s/){
-		    # 문자열 상태가 아니면 공백은 무시한다.
-    		}else{
-    		    # 예약어가 아니라면 누적된 값에 추가해 놓는다.
-    		    push(@accumulated, $current);
-    		}
-    	    }
-    	}
-    	$idx ++;
-    	$before = $current;
-    }
-    return @tokens;
-}
-sub load_text{
-    my $text = "";
-    open(my $fh, "<", "data.txt");
-    while(<$fh>){
-    	$text .= $_;
-    }
-    close($fh);
-    return $text;
-}
 
+return "Spiegel::Json";
