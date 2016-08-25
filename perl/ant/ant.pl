@@ -44,7 +44,7 @@ while($num < 100000){
     }elsif($color_post eq "B"){
 	$black_hash{$position} = 1;
     }
-    printf "num % 8d (% 4d,% 4d) Opre %s Cpre %s Opost %s Cpost %s\n", $num, $x, $y, $ori_pre, $color_pre, $ori_post, $color_post;
+    # printf "num % 8d (% 4d,% 4d) Opre %s Cpre %s Opost %s Cpost %s\n", $num, $x, $y, $ori_pre, $color_pre, $ori_post, $color_post;
 
     if($ori_post eq "N"){
 	$y += 1;
@@ -65,3 +65,10 @@ while($num < 100000){
 	$color_pre = "W";
     }
 }
+
+open(my $fh_w, ">", "result.txt");
+foreach (keys %black_hash){
+    my ($x, $y) = split /,/, $_;
+    printf $fh_w "%d,%d\n", $x, $y;
+}
+close $fh_w;
