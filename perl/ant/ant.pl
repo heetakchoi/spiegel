@@ -92,8 +92,8 @@ print $fh_w "	     ]);\n";
 
 print $fh_w "	     var options = {\n";
 print $fh_w "          title: 'Ant',\n";
-printf $fh_w "         hAxis: {title: 'South/North', minValue: %d, maxValue: %d},\n", $min_x, $max_x;
-printf $fh_w "         vAxis: {title: 'West/East', minValue: %d, maxValue: %d},\n", $min_y, $max_y;
+printf $fh_w "         hAxis: {title: 'West/East', minValue: %d, maxValue: %d},\n", $min_x, $max_x;
+printf $fh_w "         vAxis: {title: 'South/North', minValue: %d, maxValue: %d},\n", $min_y, $max_y;
 print $fh_w "          legend: 'none'\n";
 print $fh_w "        };\n";
 print $fh_w "        var chart = new google.visualization.ScatterChart(document.getElementById('chart_div'));\n";
