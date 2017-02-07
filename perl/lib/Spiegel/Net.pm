@@ -11,6 +11,8 @@ use URI::Escape;
 use Exporter ("import");
 our @EXPORT_OK = ("send_get", "send_post", "send_ssl_get", "send_ssl_post");
 
+sub unchunk;
+
 $| = 1;
 
 sub send_get{
@@ -81,30 +83,22 @@ sub send_get{
 }
 
 sub unchunk{
-    my ($chunked) = @_;
-    my @lines = split(/\r\n/, $chunked);
+	my ($chunked) = @_;
+	my $unchunked = "";
+	my $num_start_index = 0;
 
-    my $unchunked = "";
+	while(1){
+		my $num_end_index = index($chunked, "\r\n", $num_start_index +2);
+		my $num_str = substr($chunked, $num_start_index, $num_end_index - $num_start_index);
+		my $chunk_size_expected = hex($num_str);
 
-    my $chunk_size_expected = hex(shift(@lines));
-    my $processed_chunk_size = 0;
-    while(1){
-		my $current_line = shift(@lines);
-		unless(defined($current_line)){
-			last;
-		}
-		$unchunked = $unchunked . $current_line . "\n";
-		$processed_chunk_size += length($current_line);
-
-		if($processed_chunk_size >= $chunk_size_expected){
-			$chunk_size_expected = hex(shift(@lines));
-			$processed_chunk_size = 0;
-		}
 		if($chunk_size_expected == 0){
 			last;
 		}
-    }
-    return $unchunked;
+		$unchunked .= substr($chunked, $num_end_index+2, $chunk_size_expected);
+		$num_start_index = $num_end_index + 2 + $chunk_size_expected + 2;
+	}
+	return $unchunked;
 }
 
 sub send_post{
